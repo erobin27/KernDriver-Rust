@@ -1,0 +1,10 @@
+GUN: minYaw, maxYaw, minPitch, maxPitch, ADSscale, MovementPenalty
+Recoil(
+rifle.ak: 1,-3,-8,-8,.3,0
+rifle.lr300: 2,-3,-8,-8,.3,0
+rifle.semiauto: 3,-3,-8,-8,.3,0
+lmg.m249: 4,-3,-8,-8,.3,0
+smg.mp5: 5,-3,-8,-8,.3,0
+smg.2: 6,-3,-8,-8,.3,0
+pistol.python: 7,-3,-8,-8,.3,0
+)
