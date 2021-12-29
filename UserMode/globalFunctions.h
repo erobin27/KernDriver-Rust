@@ -32,9 +32,31 @@ std::wstring readWCharString(DWORD64 address, int length) {
 }
 */
 
+
+//Colors
+#define BLUE  "Color 09"
+#define BLACK  "Color 00"
+#define GREEN  "Color 0A"
+#define AQUA  "Color 0B"
+#define RED  "Color 0C"
+#define PURPLE  "Color 0D"
+#define YELLOW  "Color 0E"
+#define WHITE  "Color 0F"
+#define CLEAR "cls"
+
+//printf("%sred\n", KRED);
+//printf("%sgreen\n", KGRN);
+//printf("%syellow\n", KYEL);
+//printf("%sblue\n", KBLU);
+//printf("%smagenta\n", KMAG);
+//printf("%scyan\n", KCYN);
+//printf("%swhite\n", KWHT);
+//printf("%snormal\n", KNRM);
+
 std::map<std::string, std::vector<float>> recoilSettings;
 std::map<std::string, std::vector<float>> defaultRecoilSettings;
 std::map<std::string, std::vector<float>> recoilMultiplier;
+float recoilMultiplierAdjustable;
 std::map<std::string, bool> activeMods;
 
 std::string left(string line, char delimeter) {
@@ -177,6 +199,7 @@ void updateSettings() {
 void initializeSettings() {
 	//initialize all mods to false
 	activeMods["Recoil"] = false;
+	recoilMultiplierAdjustable = 1.0f;
 
 	//call update settings to read config
 	updateSettings();

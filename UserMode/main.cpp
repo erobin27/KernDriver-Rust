@@ -1,15 +1,18 @@
 #include "UM-Memory.h"
 #include "Entity.h"
 #include "globalFunctions.h"
+#include <iostream>
+#include <windows.h> //for colors
+
 Memory* mem = nullptr;
 UINT64 StringAddress = 0;
 
 void gameLoop() {
-	
+	float recoilAdjustment = .1f;
 	while (true) {
 		//printf("\t\tIN GAMELOOP:");
 		//entityLoop();
-		
+
 		if (GetKeyState(VK_INSERT) & 0x8000) {
 			initializeSettings();
 			entityLoop();
@@ -21,20 +24,43 @@ void gameLoop() {
 		if (GetKeyState(VK_END) & 0x8000) {
 			break;
 		}
-		/*
-		if (GetKeyState(VK_UP) & 0x8000)
-		{
-			Vars::Weapon::Recoil += .1f;//increase recoil
-			printf("Current Recoil: %f", Vars::Weapon::Recoil);
+
+
+		//INCREASE RECOIL MULTIPLIER
+		if (GetKeyState(VK_UP) & 0x8000) {
+			if (recoilMultiplierAdjustable + recoilAdjustment > 1.0f) {
+				recoilMultiplierAdjustable = 1.0f;
+				system(CLEAR);
+				system(BLUE);
+				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
+			}
+			else {
+				recoilMultiplierAdjustable += recoilAdjustment;//increase recoil
+				system(CLEAR);
+				system(BLUE);
+				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
+			}
+			Sleep(300);
 		}
 
+
+		//DECREASE RECOIL MULTIPLIER
 		if (GetKeyState(VK_DOWN) & 0x8000) { //decrease recoil
-			if (Vars::Weapon::Recoil - .1f < 0) continue; else {
-				Vars::Weapon::setRecoil(Vars::Weapon::Recoil - .1f, TRUE);
-				printf("Current Recoil: %f", Vars::Weapon::Recoil);
+			if (recoilMultiplierAdjustable - recoilAdjustment <= 0.0f) {
+				recoilMultiplierAdjustable = 0.1f;
+				system(CLEAR);
+				system(AQUA);
+				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
+			} 
+			else {
+				recoilMultiplierAdjustable -= recoilAdjustment;//decrease recoil
+				system(CLEAR);
+				system(AQUA);
+				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
+				//printf("Current Recoil: %f", recoilMultiplierAdjustable);
 			}
+			Sleep(300);
 		}
-		*/
 	}
 }
 
