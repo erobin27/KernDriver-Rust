@@ -18,20 +18,28 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 	if (defaultRecoilSettingsAutomatic.find(gunName) == defaultRecoilSettingsAutomatic.end()) {
 		//Read the default Recoil Values into defRecoil
 		float* defRecoil = Weapon->ReadRecoil();//dArr[6];
+		float* defAimCone = Weapon->ReadAimCone();//dArr[6];
 		std::cout << "Default MinYaw: " << defRecoil[0] << std::endl;
 		std::cout << "Default MaxYaw: " << defRecoil[1] << std::endl;
 		std::cout << "Default MinPitch: " << defRecoil[2] << std::endl;
 		std::cout << "Default MaxPitch: " << defRecoil[3] << std::endl;
 		std::cout << "Default ADS Scale: " << defRecoil[4] << std::endl;
 		std::cout << "Default Move Pen: " << defRecoil[5] << std::endl;
-		
+
+		std::cout << "Default AimCone: " << defAimCone[0] << std::endl;
+		std::cout << "Default HipAimCone: " << defAimCone[1] << std::endl;
+
 		//Add default recoil values into defaultRecoilSettingsAutomatic
 		for (int i = 0; i < 6; i++) {
 			defaultRecoilSettingsAutomatic[gunName].push_back(defRecoil[i]);
 		}
+		for (int i = 0; i < 2; i++) {
+			defaultRecoilSettingsAutomatic[gunName].push_back(defAimCone[i]);
+		}
 
 		//clean up
 		delete[] defRecoil;
+		delete[] defAimCone;
 	}
 
 	if(activeMods.at("RecoilMultiplier")){
@@ -44,6 +52,7 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 			defaultRecoilSettings.at(gunName)[4] * recoilMultiplierAdjustable,
 			defaultRecoilSettings.at(gunName)[5] * recoilMultiplierAdjustable
 		);
+		Weapon->editAimCone(defaultRecoilSettingsAutomatic.at(gunName)[6] * aimconeMultiplier);
 	} else {
 		std::cout << ">>>>>>>>>>>>>>>>>>>CUSTOM RECOIL SETTINGS<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 		Weapon->NoRecoil(
@@ -60,14 +69,20 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 	{
 		//Read the edited Recoil Values into defRecoil
 		float* edRecoil = Weapon->ReadRecoil();
+		float* edAimCone = Weapon->ReadAimCone();
+
 		editedRecoilAutomatic[gunName].clear();
 		//Add default recoil values into defaultRecoilSettingsAutomatic
 		for (int i = 0; i < 6; i++) {
 			editedRecoilAutomatic[gunName].push_back(edRecoil[i]);
 		}
+		for (int i = 0; i < 2; i++) {
+			editedRecoilAutomatic[gunName].push_back(edAimCone[i]);
+		}
 
 		//clean up
 		delete[] edRecoil;
+		delete[] edAimCone;
 	}
 }
 
@@ -76,16 +91,17 @@ void WeaponPatch()
 	printf("+++++++++++++++++++++++++++WeaponPatch");
 	std::wstring Hash = L"";
 	WeaponData* Weapon = LocalPlayer.BasePlayer->GetActiveWeapon();
-	
+
 	if (Weapon) Hash = Weapon->GetNameHash();
 
 	std::wcout << "CURRENT WEAPON: " << Hash;
 	HeldWeaponCheck = Hash;
 
 	//printf("Hash: %S\nAK: %S",Hash.c_str(), L"rifle.ak");
-	
-	if (compareWeapon(L"rifle.ak", Hash))
+
+	if (compareWeapon(L"rifle.ak", Hash)) {
 		callRecoil("rifle.ak", Weapon);
+	}
 
 	if (compareWeapon(L"rifle.lr300", Hash))
 		callRecoil("rifle.lr300", Weapon);

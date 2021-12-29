@@ -7,6 +7,7 @@ extern std::map<std::string, std::vector<float>> defaultRecoilSettings;
 extern std::map<std::string, std::vector<float>> recoilMultiplier;
 
 extern float recoilMultiplierAdjustable;
+extern float aimconeMultiplier;
 extern std::map<std::string, std::vector<float>> defaultRecoilSettingsAutomatic;
 extern std::map<std::string, std::vector<float>> editedRecoilAutomatic;
 extern std::wstring HeldWeaponCheck;

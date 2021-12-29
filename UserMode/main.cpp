@@ -9,18 +9,20 @@ UINT64 StringAddress = 0;
 
 void printInfo() {
 	system(CLEAR);
-	cout << "Current Multiplier: " << recoilMultiplierAdjustable << endl;
+	cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable << endl;
+	cout << "Current AimCone Multiplier: " << aimconeMultiplier << endl;
 	wcout << L"Held Weapon: " << HeldWeaponCheck << endl;
 	cout << "Last Gun Edited: " << recoilWeaponCheck << endl;
 	if (defaultRecoilSettingsAutomatic.find(recoilWeaponCheck) != defaultRecoilSettingsAutomatic.end())
-		cout << "Default Recoil Values: " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[0] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[1] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[2] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[3] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[4] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[5] << endl;
+		cout << "Default Recoil Values: " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[0] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[1] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[2] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[3] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[4] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[5] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[6] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[7] << endl;
 	if (editedRecoilAutomatic.find(recoilWeaponCheck) != editedRecoilAutomatic.end())
-		cout << "Edited Recoil Values: " << editedRecoilAutomatic.at(recoilWeaponCheck)[0] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[1] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[2] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[3] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[4] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[5] << endl;
+		cout << "Edited Recoil Values: " << editedRecoilAutomatic.at(recoilWeaponCheck)[0] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[1] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[2] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[3] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[4] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[5] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[6] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[7] << endl;
 }
 
 void gameLoop() {
 	float recoilAdjustment = .1f;
-	int delayTime = 100;
+	float aimconeAdjustment = .1f;
+	int delayTime = 300;
 	while (true) {
 		//printf("\t\tIN GAMELOOP:");
 		//entityLoop();
@@ -40,6 +42,7 @@ void gameLoop() {
 		if (GetKeyState(VK_DELETE) & 0x8000) {
 			system(RED);
 			recoilMultiplierAdjustable = 1.0f;
+			aimconeMultiplier = 1.0f;
 
 			initializeSettings();
 			entityLoop();
@@ -63,7 +66,6 @@ void gameLoop() {
 			Sleep(delayTime);
 		}
 
-
 		//DECREASE RECOIL MULTIPLIER
 		if (GetKeyState(VK_DOWN) & 0x8000) { //decrease recoil
 			if (recoilMultiplierAdjustable - recoilAdjustment <= 0.0f) {
@@ -75,6 +77,32 @@ void gameLoop() {
 			printInfo();
 			Sleep(delayTime);
 		}
+
+
+		//INCREASE AIMCONE MULTIPLIER
+		if (GetKeyState(VK_RIGHT) & 0x8000) {
+			if (aimconeMultiplier + aimconeAdjustment > 1.0f) {
+				aimconeMultiplier = 1.0f;
+			}
+			else {
+				aimconeMultiplier += aimconeAdjustment;//increase recoil
+			}
+			printInfo();
+			Sleep(delayTime);
+		}
+
+		//DECREASE AIMCONE MULTIPLIER
+		if (GetKeyState(VK_LEFT) & 0x8000) { //decrease aimcone
+			if (aimconeMultiplier - aimconeAdjustment <= 0.0f) {
+				aimconeMultiplier = 0.1f;
+			}
+			else {
+				aimconeMultiplier -= aimconeAdjustment;//decrease aimcone
+			}
+			printInfo();
+			Sleep(delayTime);
+		}
+
 
 
 		if (GetKeyState(VK_END) & 0x8000) {

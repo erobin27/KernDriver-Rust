@@ -365,6 +365,22 @@ public:
 			std::cout << "done...";
 		}
 	}
+
+	float* ReadAimCone() {
+		float* dArr = new float[2];
+
+		DWORD64 Held = mem->Read<DWORD64>((UINT_PTR)this + oHeld);
+		dArr[0] = mem->Read<float>(Held + oAimCone);
+		dArr[1] = mem->Read<float>(Held + oHipAimCone);
+		return dArr;
+
+		//if (!mem->write<float>((Held + oAimcone), movePen)) return; //public float movementPenalty;
+	}
+
+	void editAimCone(float aimconeAdjustment) {
+		DWORD64 Held = mem->Read<DWORD64>((UINT_PTR)this + oHeld);
+		if (!mem->write<float>((Held + oAimCone), aimconeAdjustment)) return; //public float movementPenalty;
+	}
 };
 
 class BasePlayer
