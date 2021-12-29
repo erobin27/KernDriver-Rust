@@ -10,11 +10,14 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 	if (recoilMultiplier.find(gunName) == recoilMultiplier.end()) {
 		std::cout << "ERROR: " << gunName << " not found in config file." << std::endl;
 	}
+	
+	//set global variable for last gun recoil changed for
+	recoilWeaponCheck = gunName;
 
 	//if the default settings have not been entered into the dictionary then find them
 	if (defaultRecoilSettingsAutomatic.find(gunName) == defaultRecoilSettingsAutomatic.end()) {
 		//Read the default Recoil Values into defRecoil
-		int* defRecoil = Weapon->ReadRecoil();//dArr[6];
+		float* defRecoil = Weapon->ReadRecoil();//dArr[6];
 		std::cout << "Default MinYaw: " << defRecoil[0] << std::endl;
 		std::cout << "Default MaxYaw: " << defRecoil[1] << std::endl;
 		std::cout << "Default MinPitch: " << defRecoil[2] << std::endl;
@@ -31,7 +34,7 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 		delete[] defRecoil;
 	}
 
-	else if(activeMods.at("RecoilMultiplier")){
+	if(activeMods.at("RecoilMultiplier")){
 		std::cout << ">>>>>>>>>>>>>>>>>>>RECOIL MULTIPLIER<<<<<<<<<<<<<<<<<<<<<<: " << recoilMultiplierAdjustable << std::endl;
 		Weapon->NoRecoil(
 			defaultRecoilSettings.at(gunName)[0] * recoilMultiplierAdjustable,
@@ -52,6 +55,20 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 			recoilSettings.at(gunName)[5]
 		);
 	}
+
+	//Read the new values into a global variable
+	{
+		//Read the edited Recoil Values into defRecoil
+		float* edRecoil = Weapon->ReadRecoil();
+		editedRecoilAutomatic[gunName].clear();
+		//Add default recoil values into defaultRecoilSettingsAutomatic
+		for (int i = 0; i < 6; i++) {
+			editedRecoilAutomatic[gunName].push_back(edRecoil[i]);
+		}
+
+		//clean up
+		delete[] edRecoil;
+	}
 }
 
 void WeaponPatch()
@@ -63,6 +80,8 @@ void WeaponPatch()
 	if (Weapon) Hash = Weapon->GetNameHash();
 
 	std::wcout << "CURRENT WEAPON: " << Hash;
+	HeldWeaponCheck = Hash;
+
 	//printf("Hash: %S\nAK: %S",Hash.c_str(), L"rifle.ak");
 	
 	if (compareWeapon(L"rifle.ak", Hash))

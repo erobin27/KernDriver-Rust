@@ -7,22 +7,47 @@
 Memory* mem = nullptr;
 UINT64 StringAddress = 0;
 
+void printInfo() {
+	system(CLEAR);
+	cout << "Current Multiplier: " << recoilMultiplierAdjustable << endl;
+	wcout << L"Held Weapon: " << HeldWeaponCheck << endl;
+	cout << "Last Gun Edited: " << recoilWeaponCheck << endl;
+	if (defaultRecoilSettingsAutomatic.find(recoilWeaponCheck) != defaultRecoilSettingsAutomatic.end())
+		cout << "Default Recoil Values: " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[0] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[1] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[2] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[3] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[4] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[5] << endl;
+	if (editedRecoilAutomatic.find(recoilWeaponCheck) != editedRecoilAutomatic.end())
+		cout << "Edited Recoil Values: " << editedRecoilAutomatic.at(recoilWeaponCheck)[0] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[1] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[2] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[3] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[4] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[5] << endl;
+}
+
 void gameLoop() {
 	float recoilAdjustment = .1f;
+	int delayTime = 100;
 	while (true) {
 		//printf("\t\tIN GAMELOOP:");
 		//entityLoop();
 
 		if (GetKeyState(VK_INSERT) & 0x8000) {
+			system(BLUE);
+
 			initializeSettings();
 			entityLoop();
-			Sleep(1000);
+
+			Sleep(delayTime);
+			system(CLEAR);
+			system(WHITE);
+			printInfo();
 		}
 
+		if (GetKeyState(VK_DELETE) & 0x8000) {
+			system(RED);
+			recoilMultiplierAdjustable = 1.0f;
 
+			initializeSettings();
+			entityLoop();
 
-		if (GetKeyState(VK_END) & 0x8000) {
-			break;
+			Sleep(delayTime);
+			system(CLEAR);
+			system(WHITE);
+			printInfo();
 		}
 
 
@@ -30,17 +55,12 @@ void gameLoop() {
 		if (GetKeyState(VK_UP) & 0x8000) {
 			if (recoilMultiplierAdjustable + recoilAdjustment > 1.0f) {
 				recoilMultiplierAdjustable = 1.0f;
-				system(CLEAR);
-				system(BLUE);
-				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
 			}
 			else {
 				recoilMultiplierAdjustable += recoilAdjustment;//increase recoil
-				system(CLEAR);
-				system(BLUE);
-				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
 			}
-			Sleep(300);
+			printInfo();
+			Sleep(delayTime);
 		}
 
 
@@ -48,18 +68,17 @@ void gameLoop() {
 		if (GetKeyState(VK_DOWN) & 0x8000) { //decrease recoil
 			if (recoilMultiplierAdjustable - recoilAdjustment <= 0.0f) {
 				recoilMultiplierAdjustable = 0.1f;
-				system(CLEAR);
-				system(AQUA);
-				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
 			} 
 			else {
 				recoilMultiplierAdjustable -= recoilAdjustment;//decrease recoil
-				system(CLEAR);
-				system(AQUA);
-				cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable;
-				//printf("Current Recoil: %f", recoilMultiplierAdjustable);
 			}
-			Sleep(300);
+			printInfo();
+			Sleep(delayTime);
+		}
+
+
+		if (GetKeyState(VK_END) & 0x8000) {
+			break;
 		}
 	}
 }

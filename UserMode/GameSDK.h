@@ -322,8 +322,8 @@ public:
 	*	4: ADS Scale
 	*	5: Movement Penalty
 	*/
-	int* ReadRecoil() {
-		int* dArr = new int[6];
+	float* ReadRecoil() {
+		float* dArr = new float[6];
 		DWORD64 Held = mem->Read<DWORD64>((UINT_PTR)this + oHeld);
 		DWORD64 recoil = mem->Read<DWORD64>(Held + oRecoil); //public RecoilProperties recoil;
 		std::cout << "\n\n-----READING MinYaw: " << mem->Read<float>((recoil + oRecoilMinYaw));

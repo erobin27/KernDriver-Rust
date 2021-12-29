@@ -56,9 +56,13 @@ std::wstring readWCharString(DWORD64 address, int length) {
 std::map<std::string, std::vector<float>> recoilSettings;
 std::map<std::string, std::vector<float>> defaultRecoilSettings;
 std::map<std::string, std::vector<float>> recoilMultiplier;
+std::map<std::string, bool> activeMods;
+
 float recoilMultiplierAdjustable = 1.0f;
 std::map<std::string, std::vector<float>> defaultRecoilSettingsAutomatic;
-std::map<std::string, bool> activeMods;
+std::map<std::string, std::vector<float>> editedRecoilAutomatic;
+std::wstring HeldWeaponCheck = L"";
+std::string recoilWeaponCheck = "";
 
 std::string left(string line, char delimeter) {
 	string str = line.substr(0, line.find(delimeter));
