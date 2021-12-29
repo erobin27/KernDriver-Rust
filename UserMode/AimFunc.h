@@ -10,8 +10,29 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 	if (recoilMultiplier.find(gunName) == recoilMultiplier.end()) {
 		std::cout << "ERROR: " << gunName << " not found in config file." << std::endl;
 	}
+
+	//if the default settings have not been entered into the dictionary then find them
+	if (defaultRecoilSettingsAutomatic.find(gunName) == defaultRecoilSettingsAutomatic.end()) {
+		//Read the default Recoil Values into defRecoil
+		int* defRecoil = Weapon->ReadRecoil();//dArr[6];
+		std::cout << "Default MinYaw: " << defRecoil[0] << std::endl;
+		std::cout << "Default MaxYaw: " << defRecoil[1] << std::endl;
+		std::cout << "Default MinPitch: " << defRecoil[2] << std::endl;
+		std::cout << "Default MaxPitch: " << defRecoil[3] << std::endl;
+		std::cout << "Default ADS Scale: " << defRecoil[4] << std::endl;
+		std::cout << "Default Move Pen: " << defRecoil[5] << std::endl;
+		
+		//Add default recoil values into defaultRecoilSettingsAutomatic
+		for (int i = 0; i < 6; i++) {
+			defaultRecoilSettingsAutomatic[gunName].push_back(defRecoil[i]);
+		}
+
+		//clean up
+		delete[] defRecoil;
+	}
+
 	else if(activeMods.at("RecoilMultiplier")){
-		std::cout << ">>>>>>>>>>>>>>>>>>>RECOIL MULTIPLIER<<<<<<<<<<<<<<<<<<<<<<" << recoilMultiplierAdjustable << std::endl;
+		std::cout << ">>>>>>>>>>>>>>>>>>>RECOIL MULTIPLIER<<<<<<<<<<<<<<<<<<<<<<: " << recoilMultiplierAdjustable << std::endl;
 		Weapon->NoRecoil(
 			defaultRecoilSettings.at(gunName)[0] * recoilMultiplierAdjustable,
 			defaultRecoilSettings.at(gunName)[1] * recoilMultiplierAdjustable,

@@ -313,6 +313,34 @@ public:
 		}
 	}
 
+	/*
+	*	Returns as so...
+	*	0: MinYaw
+	*	1: MaxYaw
+	*	2: MinPitch
+	*	3: MaxPitch
+	*	4: ADS Scale
+	*	5: Movement Penalty
+	*/
+	int* ReadRecoil() {
+		int* dArr = new int[6];
+		DWORD64 Held = mem->Read<DWORD64>((UINT_PTR)this + oHeld);
+		DWORD64 recoil = mem->Read<DWORD64>(Held + oRecoil); //public RecoilProperties recoil;
+		std::cout << "\n\n-----READING MinYaw: " << mem->Read<float>((recoil + oRecoilMinYaw));
+		std::cout << "\n\n-----READING MaxYaw: " << mem->Read<float>((recoil + oRecoilMaxYaw));
+		std::cout << "\n\n-----READING MinPitch: " << mem->Read<float>((recoil + oRecoilMinPitch));
+		std::cout << "\n\n-----READING MaxPitch: " << mem->Read<float>((recoil + oRecoilMaxPitch));
+		std::cout << "\n\n-----READING ADS Scale: " << mem->Read<float>((recoil + oADSScale));
+		std::cout << "\n\n-----READING Move Pen: " << mem->Read<float>((recoil + oMovementPenalty));
+		dArr[0] = mem->Read<float>((recoil + oRecoilMinYaw));
+		dArr[1] = mem->Read<float>((recoil + oRecoilMaxYaw));
+		dArr[2] = mem->Read<float>((recoil + oRecoilMinPitch));
+		dArr[3] = mem->Read<float>((recoil + oRecoilMaxPitch));
+		dArr[4] = mem->Read<float>((recoil + oADSScale));
+		dArr[5] = mem->Read<float>((recoil + oMovementPenalty));
+		return dArr;
+	}
+
 	void NoRecoil(float minYaw, float maxYaw, float minPitch, float maxPitch, float ADS, float movePen)
 	{
 		std::cout << "minYaw: " << minYaw << "\n" << "maxYaw: " << maxYaw << "\n" << "minPitch: " << minPitch << "\n" << "maxPitch: " << maxPitch << "\n" << "ADS: " << ADS << "\n" << "movePen: " << movePen << "\n" << std::endl;
@@ -322,6 +350,7 @@ public:
 
 			DWORD64 Held = mem->Read<DWORD64>((UINT_PTR)this + oHeld);
 			DWORD64 recoil = mem->Read<DWORD64>(Held + oRecoil); //public RecoilProperties recoil;
+
 
 			std::cout << "\n\n-----Current MinYaw: " << mem->Read<float>((recoil + oRecoilMinYaw));
 			std::cout << "\n\n-----Current MaxYaw: " << mem->Read<float>((recoil + oRecoilMaxYaw));

@@ -57,6 +57,7 @@ std::map<std::string, std::vector<float>> recoilSettings;
 std::map<std::string, std::vector<float>> defaultRecoilSettings;
 std::map<std::string, std::vector<float>> recoilMultiplier;
 float recoilMultiplierAdjustable = 1.0f;
+std::map<std::string, std::vector<float>> defaultRecoilSettingsAutomatic;
 std::map<std::string, bool> activeMods;
 
 std::string left(string line, char delimeter) {
