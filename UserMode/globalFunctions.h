@@ -56,7 +56,7 @@ std::wstring readWCharString(DWORD64 address, int length) {
 std::map<std::string, std::vector<float>> recoilSettings;
 std::map<std::string, std::vector<float>> defaultRecoilSettings;
 std::map<std::string, std::vector<float>> recoilMultiplier;
-float recoilMultiplierAdjustable;
+float recoilMultiplierAdjustable = 1.0f;
 std::map<std::string, bool> activeMods;
 
 std::string left(string line, char delimeter) {
@@ -199,7 +199,6 @@ void updateSettings() {
 void initializeSettings() {
 	//initialize all mods to false
 	activeMods["Recoil"] = false;
-	recoilMultiplierAdjustable = 1.0f;
 
 	//call update settings to read config
 	updateSettings();

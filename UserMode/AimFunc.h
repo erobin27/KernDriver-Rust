@@ -11,14 +11,14 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 		std::cout << "ERROR: " << gunName << " not found in config file." << std::endl;
 	}
 	else if(activeMods.at("RecoilMultiplier")){
-		std::cout << ">>>>>>>>>>>>>>>>>>>RECOIL MULTIPLIER<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+		std::cout << ">>>>>>>>>>>>>>>>>>>RECOIL MULTIPLIER<<<<<<<<<<<<<<<<<<<<<<" << recoilMultiplierAdjustable << std::endl;
 		Weapon->NoRecoil(
-			defaultRecoilSettings.at(gunName)[0] * recoilMultiplier.at(gunName)[0],
-			defaultRecoilSettings.at(gunName)[1] * recoilMultiplier.at(gunName)[0],
-			defaultRecoilSettings.at(gunName)[2] * recoilMultiplier.at(gunName)[0],
-			defaultRecoilSettings.at(gunName)[3] * recoilMultiplier.at(gunName)[0],
-			defaultRecoilSettings.at(gunName)[4] * recoilMultiplier.at(gunName)[0],
-			defaultRecoilSettings.at(gunName)[5] * recoilMultiplier.at(gunName)[0]
+			defaultRecoilSettings.at(gunName)[0] * recoilMultiplierAdjustable,
+			defaultRecoilSettings.at(gunName)[1] * recoilMultiplierAdjustable,
+			defaultRecoilSettings.at(gunName)[2] * recoilMultiplierAdjustable,
+			defaultRecoilSettings.at(gunName)[3] * recoilMultiplierAdjustable,
+			defaultRecoilSettings.at(gunName)[4] * recoilMultiplierAdjustable,
+			defaultRecoilSettings.at(gunName)[5] * recoilMultiplierAdjustable
 		);
 	} else {
 		std::cout << ">>>>>>>>>>>>>>>>>>>CUSTOM RECOIL SETTINGS<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
