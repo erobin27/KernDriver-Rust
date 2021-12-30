@@ -90,11 +90,12 @@ uint64_t CanAttack = 0x3EAFE0;
 #define oMovementPenalty 0x34 //public float movementPenalty;
 #define oRecoil 0x2D8  //public RecoilProperties recoil;
 //AntiSpread
-#define oAimconePenaltyPerShot 0x2F0  // public float aimconePenaltyPerShot;
 #define oAimCone 0x2E8  // public float aimCone;
 #define oHipAimCone 0x2EC // public float hipAimCone;
-#define oStancePenalty 0x304 // private float stancePenalty;
-#define oAimConePenalty 0x308 // private float aimconePenalty;
+#define oAimconePenaltyPerShot 0x2F0  // public float aimconePenaltyPerShot;
+#define oAimconePenaltyMax 0x2F4	// public float hipAimCone;
+#define oStancePenalty 0x300 // private float stancePenalty;
+#define oAimConePenalty 0x320 // private float aimconePenalty;		//increases from 0 to 1.0 as you fire
 
 
 
@@ -371,15 +372,16 @@ public:
 
 		DWORD64 Held = mem->Read<DWORD64>((UINT_PTR)this + oHeld);
 		dArr[0] = mem->Read<float>(Held + oAimCone);
-		dArr[1] = mem->Read<float>(Held + oHipAimCone);
+		dArr[1] = mem->Read<float>(Held + oAimconePenaltyMax);
 		return dArr;
 
 		//if (!mem->write<float>((Held + oAimcone), movePen)) return; //public float movementPenalty;
 	}
 
-	void editAimCone(float aimconeAdjustment) {
+	void editAimCone(float newAimcone, float  newAimconePenaltyMax) {
 		DWORD64 Held = mem->Read<DWORD64>((UINT_PTR)this + oHeld);
-		if (!mem->write<float>((Held + oAimCone), aimconeAdjustment)) return; //public float movementPenalty;
+		if (!mem->write<float>((Held + oAimCone), newAimcone)) return;
+		if (!mem->write<float>((Held + oAimconePenaltyMax), newAimconePenaltyMax)) return;
 	}
 };
 

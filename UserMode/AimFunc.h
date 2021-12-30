@@ -52,7 +52,7 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 			defaultRecoilSettings.at(gunName)[4] * recoilMultiplierAdjustable,
 			defaultRecoilSettings.at(gunName)[5] * recoilMultiplierAdjustable
 		);
-		Weapon->editAimCone(defaultRecoilSettingsAutomatic.at(gunName)[6] * aimconeMultiplier);
+		Weapon->editAimCone(defaultRecoilSettingsAutomatic.at(gunName)[6] * aimconeMultiplier, defaultRecoilSettingsAutomatic.at(gunName)[7] * aimconeMultiplier);
 	} else {
 		std::cout << ">>>>>>>>>>>>>>>>>>>CUSTOM RECOIL SETTINGS<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 		Weapon->NoRecoil(
