@@ -31,7 +31,7 @@ void gameLoop() {
 			system(BLUE);
 
 			initializeSettings();
-			entityLoop();
+			basePlayerLoop();
 
 			Sleep(delayTime);
 			system(CLEAR);
@@ -45,12 +45,18 @@ void gameLoop() {
 			aimconeMultiplier = 1.0f;
 
 			initializeSettings();
-			entityLoop();
+			basePlayerLoop();
 
 			Sleep(delayTime);
 			system(CLEAR);
 			system(WHITE);
 			printInfo();
+		}
+
+		//Radar
+		if (GetKeyState(VK_HOME) & 0x8000) {
+			entityLoop();
+			Sleep(1000);
 		}
 
 

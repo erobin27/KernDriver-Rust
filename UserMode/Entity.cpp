@@ -15,7 +15,17 @@ std::string readCharString(DWORD64 address, int length) {
 	return str;
 }
 
-void entityLoop() {
+std::wstring readWCharString(DWORD64 address, int length) {
+	std::wstring str = L"";
+	for (int i = 0; i < length; i++) {
+		//std::wcout << mem->Read<UCHAR>(address + i * 2);
+		str += mem->Read<wchar_t>(address + i * 2);
+	}
+
+	return str;
+}
+
+void basePlayerLoop() {
 	//printf("++++++++++++++++++++++++++++++++ENTITYLOOP\n");
 	bool LP_isValid = false;
 	DWORD64 BaseNetworkable;
@@ -77,5 +87,103 @@ void entityLoop() {
 	}
 	else {
 		LocalPlayer.BasePlayer = nullptr;
+	}
+}
+
+void entityLoop() {
+	Vector3 LocalPos;
+	ULONG LocalTeam;
+
+	std::vector<Vector3> Players;
+	std::vector<std::string> PlayerNames;
+	DWORD64 BaseNetworkable;
+	BaseNetworkable = mem->Read<DWORD64>(mem->get_module_base_address("GameAssembly.dll") + g_BN_Steam);
+	DWORD64 EntityRealm = mem->Read<DWORD64>(BaseNetworkable + oEntityRealm);
+	DWORD64 ClientEntities = mem->Read<DWORD64>(EntityRealm);
+	DWORD64 ClientEntities_list = mem->Read<DWORD64>(ClientEntities + oClientEntitiesList);
+	DWORD64 ClientEntities_values = mem->Read<DWORD64>(ClientEntities_list + oClientEntitiesValues);
+	if (!ClientEntities_values) return;
+	int EntityCount = mem->Read<int>(ClientEntities_values + 0x10);
+	//printf("EntityCount: %i\n",EntityCount);
+	DWORD64 EntityBuffer = mem->Read<DWORD64>(ClientEntities_values + 0x18);
+
+	for (int i = 0; i <= EntityCount; i++)
+	{
+		DWORD64 Entity = mem->Read<DWORD64>(EntityBuffer + 0x20 + (i * 0x8));
+		if (Entity <= 100000) continue;
+		DWORD64 Obj = mem->Read<DWORD64>(Entity + 0x0);
+		DWORD64 ObjName = mem->Read<DWORD64>(Obj + 0x10);
+		std::string ClassName = readCharString(ObjName, 15);
+		//std::cout << ClassName << std::endl;
+		//std::cout << LocalPos.Length() << std::endl;
+		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
+		if (Object <= 100000) continue;
+		DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x28);\
+
+		if (ClassName.find(std::string("BasePlayer")) != std::string::npos) {
+			if (LocalPos.Length() == 0) {
+				DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
+				if (Object <= 100000) continue;
+				DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x30);
+				if (ObjectClass <= 100000) continue;
+				DWORD64 ObjectName = mem->Read<DWORD64>(ObjectClass + 0x60);
+				std::string name = readCharString(ObjectName, 60);
+				if (name.find(std::string("Local")) != std::string::npos) {//if local is contained in class name
+					DWORD64 Player = mem->Read<DWORD64>(Object + 0x28);
+					DWORD64 Model = mem->Read<DWORD64>(Player + oPlayerModel);
+					Vector3 Position = mem->Read<Vector3>(Model + 0x208);
+					LocalPos = Position;
+					LocalTeam = mem->Read<ULONG>(Player + oCurrentTeam);
+				}
+			}
+			else {
+				ULONG PlayerTeam = mem->Read<ULONG>(ObjectClass + oCurrentTeam);
+				if (LocalTeam == PlayerTeam && LocalTeam != 0) continue;
+
+				DWORD64 Model = mem->Read<DWORD64>(ObjectClass + oPlayerModel);
+				Vector3 Position = mem->Read<Vector3>(Model + 0x208);
+				Players.push_back(Position);
+			}
+			//DWORD64 pName = mem->Read<DWORD64>(ObjectClass + oDisplayName);
+			//PlayerNames.push_back(readCharString(pName + 0x10, 15));
+			//std::wcout << readWCharString(pName + 0x10, 20) << std::endl;
+			//std::cout << Position[0] << ", " << Position[1] << ", " << Position[2] << std::endl;	//position[1] is the height the player is at
+		}
+
+		if (ObjectClass <= 100000) continue;
+		DWORD64 ObjectName = mem->Read<DWORD64>(ObjectClass + 0x60);
+
+		/*
+		DWORD64 Entity = mem->Read<DWORD64>(EntityBuffer + 0x20 + (i * 0x8));
+		if (Entity <= 100000) continue;
+		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
+		if (Object <= 100000) continue;
+		DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x30);
+		if (ObjectClass <= 100000) continue;
+		DWORD64 ObjectName = mem->Read<DWORD64>(ObjectClass + 0x60);
+		std::string name = readCharString(ObjectName, 60);
+		std::cout << name << std::endl;
+		*/
+		/*
+		if (name.find(std::string("Local")) != std::string::npos) {//if local is contained in class name
+			//printf("\nName: %s\n", name.c_str());
+			BasePlayer* Player = (BasePlayer*)mem->Read<DWORD64>(Object + 0x28);
+			if (!mem->Read<DWORD64>(mem->Read<DWORD64>(Object + 0x28) + 0x50) || mem->Read<bool>(mem->Read<DWORD64>(Object + 0x28) + 0x18) || !mem->Read<DWORD64>(mem->Read<DWORD64>(Object + 0x28) + oPlayerModel))
+			{
+				printf("-------------ERROR\n");
+				continue;
+			}
+			if (Player != LocalPlayer.BasePlayer) {
+				//printf("LocalPlayer %lld\n", Player->GetSteamID());
+				mfound = false;
+			}
+		}
+		*/
+	}
+	std::cout << "LOCAL PLAYER TEAM: " << LocalTeam << std::endl;
+	std::cout << "LOCAL PLAYER POS: " << LocalPos[0] << ", " << LocalPos[1] << ", " << LocalPos[2] << std::endl;
+	for (int i = 0; i < Players.size(); i++) {
+		Vector3 Position = Players[i];
+		std::cout << i << ": " << Position[0] << ", " << Position[1] << ", " << Position[2] << std::endl;
 	}
 }

@@ -41,10 +41,11 @@ uint64_t CanAttack = 0x3EAFE0;
 #define oEntityBuffer 0x18 //clientValues + EntityBuffer
 
 
+#define oDisplayName 0x6e0 //BasePlayer -> _DisplayName
 
 
 #define oPlayerModel 0x4C0//0x4A8 //public PlayerModel playerModel; 
-#define oPlayerPosition = 0x1F8
+#define oPlayerPosition = 0x208
 #define oPlayerFlags 0x680//0x650//0x5F8 //	public BasePlayer.PlayerFlags playerFlags;
 #define oBelt = 0x6b8//0x688//0x28
 #define oBeltContents = 0x38
@@ -60,7 +61,8 @@ uint64_t CanAttack = 0x3EAFE0;
 #define oVisible 0x248  // internal bool visible;
 #define oNoAimSway 0x6BC     //	public float clothingAccuracyBonus;
 #define oLifestate 0x204 //	public BaseCombatEntity.LifeState lifestate;
-#define oClientTeam 0x590 //540 // public PlayerTeam clientTeam
+#define oClientTeam 0x5a0 //540 // public PlayerTeam clientTeam
+#define oCurrentTeam 0x598	//ULONG Current Team
 
 #define oActiveUID 0x5D0//0x5C8//0x570  //	private uint clActiveItem;
 #define oPlayerHealth 0x20C  //private float _health;
