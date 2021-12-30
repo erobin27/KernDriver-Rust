@@ -43,6 +43,7 @@ std::wstring readWCharString(DWORD64 address, int length) {
 #define YELLOW  "Color 0E"
 #define WHITE  "Color 0F"
 #define CLEAR "cls"
+#define ALERT "Color 3C"
 
 //printf("%sred\n", KRED);
 //printf("%sgreen\n", KGRN);

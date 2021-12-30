@@ -8,7 +8,6 @@ Memory* mem = nullptr;
 UINT64 StringAddress = 0;
 
 void printInfo() {
-	system(CLEAR);
 	cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable << endl;
 	cout << "Current AimCone Multiplier: " << aimconeMultiplier << endl;
 	wcout << L"Held Weapon: " << HeldWeaponCheck << endl;
@@ -19,10 +18,24 @@ void printInfo() {
 		cout << "Edited Recoil Values: " << editedRecoilAutomatic.at(recoilWeaponCheck)[0] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[1] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[2] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[3] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[4] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[5] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[6] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[7] << endl;
 }
 
+void printInstructions() {
+	system(CLEAR);
+	printInfo();
+	cout << "\n\n\n\n\n\n\n\n" << endl;
+	cout << "INSERT: Apply recoil and aimcone effects" << endl;
+	cout << "DEL: Revert recoil and aimcone to default values" << endl;
+	cout << "UP/DOWN: Adjust recoil multiplier" << endl;
+	cout << "LEFT/RIGHT: Adjust aimcone multiplier" << endl;
+	cout << "HOME: Start Radar Scanning\t\t END: hold to end radar scanning" << endl;
+}
+
 void gameLoop() {
 	float recoilAdjustment = .1f;
 	float aimconeAdjustment = .1f;
 	int delayTime = 300;
+
+	printInstructions();
+
 	while (true) {
 		//printf("\t\tIN GAMELOOP:");
 		//entityLoop();
@@ -36,7 +49,7 @@ void gameLoop() {
 			Sleep(delayTime);
 			system(CLEAR);
 			system(WHITE);
-			printInfo();
+			printInstructions();
 		}
 
 		if (GetKeyState(VK_DELETE) & 0x8000) {
@@ -50,13 +63,19 @@ void gameLoop() {
 			Sleep(delayTime);
 			system(CLEAR);
 			system(WHITE);
-			printInfo();
+			printInstructions();
 		}
 
 		//Radar
 		if (GetKeyState(VK_HOME) & 0x8000) {
-			entityLoop();
 			Sleep(1000);
+			while (!(GetKeyState(VK_END) & 0x8000)) {
+				system(CLEAR);
+				entityLoop();
+				Sleep(5000);
+			}
+			system(WHITE);
+			printInstructions();
 		}
 
 
@@ -68,7 +87,7 @@ void gameLoop() {
 			else {
 				recoilMultiplierAdjustable += recoilAdjustment;//increase recoil
 			}
-			printInfo();
+			printInstructions();
 			Sleep(delayTime);
 		}
 
@@ -80,7 +99,7 @@ void gameLoop() {
 			else {
 				recoilMultiplierAdjustable -= recoilAdjustment;//decrease recoil
 			}
-			printInfo();
+			printInstructions();
 			Sleep(delayTime);
 		}
 
@@ -93,7 +112,7 @@ void gameLoop() {
 			else {
 				aimconeMultiplier += aimconeAdjustment;//increase recoil
 			}
-			printInfo();
+			printInstructions();
 			Sleep(delayTime);
 		}
 
@@ -105,15 +124,15 @@ void gameLoop() {
 			else {
 				aimconeMultiplier -= aimconeAdjustment;//decrease aimcone
 			}
-			printInfo();
+			printInstructions();
 			Sleep(delayTime);
 		}
 
 
 
-		if (GetKeyState(VK_END) & 0x8000) {
-			break;
-		}
+		//if (GetKeyState(VK_END) & 0x8000) {
+		//	break;
+		//}
 	}
 }
 

@@ -152,8 +152,58 @@ void entityLoop() {
 
 		if (ObjectClass <= 100000) continue;
 		DWORD64 ObjectName = mem->Read<DWORD64>(ObjectClass + 0x60);
+	}
+	//std::cout << "LOCAL PLAYER TEAM: " << LocalTeam << std::endl;
+	//std::cout << "LOCAL PLAYER POS: " << LocalPos[0] << ", " << LocalPos[1] << ", " << LocalPos[2] << std::endl;
+	for (int i = 0; i < Players.size(); i++) {
+		Vector3 Position = Players[i];
+		//std::cout << i << ": " << Position[0] << ", " << Position[1] << ", " << Position[2] << std::endl;
+	}
 
-		/*
+
+
+	//RADAR
+	std::vector<std::pair<int, int>> RadarDegrees;
+	for (int i = 0; i < Players.size(); i++) {
+		Vector3 Position = Players[i];
+		float xPos = Position[0] - LocalPos[0];
+		float yPos = Position[2] - LocalPos[2];
+		int distance = sqrt(pow(xPos, 2) + pow(yPos, 2));
+		float Angle = 0;
+		if ((xPos > 0 && yPos > 0) || (xPos < 0 && yPos < 0))	//if in quadrant 1 or 3
+		{
+			Angle = atan(std::abs(xPos) / std::abs(yPos)) * (180 / 3.141592653);
+			if (xPos < 0) Angle += 180;
+		}
+		else {
+			Angle = atan(std::abs(yPos) / std::abs(xPos)) * (180 / 3.141592653);
+			if (xPos > 0) {
+				Angle += 90;
+			}
+			else {
+				Angle += 270;
+			}
+		}
+		RadarDegrees.push_back(std::make_pair((int)Angle, distance));
+	}
+
+	if (RadarDegrees.size() != 0) {
+		system("Color 40");
+		std::cout << "ENEMY NEAR" << std::endl;
+		for (int i = 0; i < RadarDegrees.size(); i++) {
+			std::cout << i + 1 << ":\t" << RadarDegrees[i].first << " degrees " << RadarDegrees[i].second << "M away\n" << std::endl;
+		}
+	}
+	else {
+		system("Color 0F");
+		std::cout << "safe...	hold END to stop radar scanning." << std::endl;
+	}
+}
+
+
+
+
+/*
 		DWORD64 Entity = mem->Read<DWORD64>(EntityBuffer + 0x20 + (i * 0x8));
 		if (Entity <= 100000) continue;
 		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
@@ -179,11 +229,3 @@ void entityLoop() {
 			}
 		}
 		*/
-	}
-	std::cout << "LOCAL PLAYER TEAM: " << LocalTeam << std::endl;
-	std::cout << "LOCAL PLAYER POS: " << LocalPos[0] << ", " << LocalPos[1] << ", " << LocalPos[2] << std::endl;
-	for (int i = 0; i < Players.size(); i++) {
-		Vector3 Position = Players[i];
-		std::cout << i << ": " << Position[0] << ", " << Position[1] << ", " << Position[2] << std::endl;
-	}
-}
