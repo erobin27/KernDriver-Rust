@@ -10,6 +10,7 @@ UINT64 StringAddress = 0;
 void printInfo() {
 	cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable << endl;
 	cout << "Current AimCone Multiplier: " << aimconeMultiplier << endl;
+	cout << "Current Radar distance: " << radarDistance << endl;
 	wcout << L"Held Weapon: " << HeldWeaponCheck << endl;
 	cout << "Last Gun Edited: " << recoilWeaponCheck << endl;
 	if (defaultRecoilSettingsAutomatic.find(recoilWeaponCheck) != defaultRecoilSettingsAutomatic.end())
@@ -26,13 +27,15 @@ void printInstructions() {
 	cout << "DEL: Revert recoil and aimcone to default values" << endl;
 	cout << "UP/DOWN: Adjust recoil multiplier" << endl;
 	cout << "LEFT/RIGHT: Adjust aimcone multiplier" << endl;
+	cout << "PAGE_UP/PAGE_DOWN: Adjust radar distance" << endl;
 	cout << "HOME: Start Radar Scanning\t\t END: hold to end radar scanning" << endl;
 }
 
 void gameLoop() {
 	float recoilAdjustment = .1f;
 	float aimconeAdjustment = .1f;
-	int delayTime = 300;
+	int radarAdjustment = 10;
+	int delayTime = 100;
 
 	printInstructions();
 
@@ -123,6 +126,28 @@ void gameLoop() {
 			}
 			else {
 				aimconeMultiplier -= aimconeAdjustment;//decrease aimcone
+			}
+			printInstructions();
+			Sleep(delayTime);
+		}
+
+		if (GetKeyState(VK_PRIOR) & 0x8000) { // PAGE UP INCREASE RADAR
+			if (radarDistance + radarAdjustment >= 400) {
+				radarDistance = 400;
+			}
+			else {
+				radarDistance += radarAdjustment;//increase radar
+			}
+			printInstructions();
+			Sleep(delayTime);
+		}
+
+		if (GetKeyState(VK_NEXT) & 0x8000) { // PAGE UP INCREASE RADAR
+			if (radarDistance - radarAdjustment <= 0) {
+				radarDistance = 10;
+			}
+			else {
+				radarDistance -= radarAdjustment;//decrease aimcone
 			}
 			printInstructions();
 			Sleep(delayTime);

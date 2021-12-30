@@ -187,16 +187,28 @@ void entityLoop() {
 		RadarDegrees.push_back(std::make_pair((int)Angle, distance));
 	}
 
-	if (RadarDegrees.size() != 0) {
-		system("Color 40");
-		std::cout << "ENEMY NEAR" << std::endl;
+	bool Alert = false;
+	for (int i = 0; i < RadarDegrees.size(); i++) {
+		if (RadarDegrees[i].second <= radarDistance)	//if within radar
+		{
+			system("Color 40");
+			std::cout << "ENEMY NEAR WITHIN " << radarDistance << "M: " << std::endl;
+			Alert = true;
+			break;
+		}
+	}
+
+	if (Alert) {
 		for (int i = 0; i < RadarDegrees.size(); i++) {
-			std::cout << i + 1 << ":\t" << RadarDegrees[i].first << " degrees " << RadarDegrees[i].second << "M away\n" << std::endl;
+			if(RadarDegrees[i].second <= radarDistance)	//if within radar
+			{
+				std::cout << i + 1 << ":\t" << RadarDegrees[i].first << " degrees " << RadarDegrees[i].second << "M away\n" << std::endl;
+			}
 		}
 	}
 	else {
 		system("Color 0F");
-		std::cout << "safe...	hold END to stop radar scanning." << std::endl;
+		std::cout << radarDistance << "M clear...	hold END to stop radar scanning." << std::endl;
 	}
 }
 

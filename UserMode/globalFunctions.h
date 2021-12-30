@@ -61,6 +61,7 @@ std::map<std::string, bool> activeMods;
 
 float recoilMultiplierAdjustable = 1.0f;
 float aimconeMultiplier = 1.0f;
+int radarDistance = 100;
 std::map<std::string, std::vector<float>> defaultRecoilSettingsAutomatic;
 std::map<std::string, std::vector<float>> editedRecoilAutomatic;
 std::wstring HeldWeaponCheck = L"";
