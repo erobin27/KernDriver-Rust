@@ -45,10 +45,12 @@ uint64_t CanAttack = 0x3EAFE0;
 
 
 #define oPlayerModel 0x4C0//0x4A8 //public PlayerModel playerModel; 
-#define oPlayerPosition = 0x208
+#define oPlayerPosition 0x208
+#define oWasSleeping 0x521 //public Bool wasSleeping
+#define oWasDead 0x523 //public Bool wasDead
 #define oPlayerFlags 0x680//0x650//0x5F8 //	public BasePlayer.PlayerFlags playerFlags;
-#define oBelt = 0x6b8//0x688//0x28
-#define oBeltContents = 0x38
+#define oBelt 0x6b8//0x688//0x28
+#define oBeltContents 0x38
 #define oHeld 0x98  // private EntityRef heldEntity;
 #define oPlayerInventory 0x690//0x668//0x660  //	public PlayerInventory inventory;
 #define oPlayerInput 0x4E0  //	public PlayerInput input; 
@@ -99,7 +101,29 @@ uint64_t CanAttack = 0x3EAFE0;
 #define oStancePenalty 0x300 // private float stancePenalty;
 #define oAimConePenalty 0x320 // private float aimconePenalty;		//increases from 0 to 1.0 as you fire
 
-
+enum PlayerFlags {
+	Unused1 = 1,
+	Unused2 = 2,
+	IsAdmin = 4,
+	ReceivingSnapshot = 8,
+	Sleeping = 16,
+	Spectating = 32,
+	Wounded = 64,
+	IsDeveloper = 128,
+	Connected = 256,
+	VoiceMuted = 512,
+	ThirdPersonViewmode = 1024,
+	EyesViewmode = 2048,
+	ChatMute = 4096,
+	NoSprint = 8192,
+	Aiming = 16384,
+	DisplaySash = 32768,
+	Relaxed = 65536,
+	SafeZone = 131072,
+	Workbench1 = 1048576,
+	Workbench2 = 2097152,
+	Workbench3 = 4194304,
+};
 
 const unsigned short Crc16Table[256] = {
 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,

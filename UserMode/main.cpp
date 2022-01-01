@@ -75,7 +75,7 @@ void gameLoop() {
 			while (!(GetKeyState(VK_END) & 0x8000)) {
 				system(CLEAR);
 				entityLoop();
-				Sleep(5000);
+				Sleep(1000);
 			}
 			system(WHITE);
 			printInstructions();

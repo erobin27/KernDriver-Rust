@@ -118,8 +118,7 @@ void entityLoop() {
 		//std::cout << LocalPos.Length() << std::endl;
 		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
 		if (Object <= 100000) continue;
-		DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x28);\
-
+		DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x28);
 		if (ClassName.find(std::string("BasePlayer")) != std::string::npos) {
 			if (LocalPos.Length() == 0) {
 				DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
@@ -136,10 +135,12 @@ void entityLoop() {
 					LocalTeam = mem->Read<ULONG>(Player + oCurrentTeam);
 				}
 			}
-			else {
+			else if(!mem->Read<bool>(ObjectClass + 0x521)) {
 				ULONG PlayerTeam = mem->Read<ULONG>(ObjectClass + oCurrentTeam);
-				if (LocalTeam == PlayerTeam && LocalTeam != 0) continue;
 
+				if (LocalTeam == PlayerTeam && LocalTeam != 0) continue;	//if the players are on your team dont show on radar
+				if (mem->Read<bool>(ObjectClass + oWasSleeping)) continue;	//dont show if the player is sleeping
+				if (mem->Read<bool>(ObjectClass + oWasDead)) continue;	//dont show on radar if player is dead
 				DWORD64 Model = mem->Read<DWORD64>(ObjectClass + oPlayerModel);
 				Vector3 Position = mem->Read<Vector3>(Model + 0x208);
 				Players.push_back(Position);
