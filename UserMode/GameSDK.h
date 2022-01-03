@@ -9,30 +9,10 @@
 //game structs
 //[Base + g_BN_Steam] + oEntityRealm] + oClientEntitiesList] + oClientEntitiesValues]
 //client entities = read()
-#define g_BN 0x3112AE0 //0x32A4668  //0x3234020//0x3233E78//0x3115078//0x29C28A8 
-#define g_BN_Steam 0x3112AE0 //0x3234020//0x3233E78//0x3115078//0x29C28A8//0x29C28A8//0x29BF3E0 //0x29BBD08//0x29B9AA0//0x299C2B8//basenetworkable
-#define GOM 0x17C1F18 //0x17C1F18
+#define g_BN 0x3112AE0			//0x32A4668
+#define g_BN_Steam 0x3112AE0 
+#define GOM 0x17C1F18			//doesn't change (usually)
 
-/*
-int64_t playerEyes = 0x658;
-uint64_t playerHealth = 0x224;
-
-uint64_t bodyAngles = 0x3C;
-uint64_t RecoilProperties = 0x2D8;
-uint64_t baseMovement = 0x4E8;
-uint64_t groundAngle = 0xBC;
-uint64_t groundAngleNew = 0xC0;
-uint64_t gravityMultiplier = 0x7C;
-uint64_t Flying = 0x144;
-uint64_t landTime = 0xCC;
-uint64_t jumpTime = 0xC8;
-uint64_t groundTime = 0xC4;
-uint64_t weaponAutomatic = 0x288;
- 
-uint64_t ViewmodelBob_ApplySettings = 0x8A26F0;
-uint64_t ViewmodelLower_Apply = 0x959FF0;
-uint64_t CanAttack = 0x3EAFE0;
-*/
 
 #define oEntityRealm 0xB8
 #define oClientEntitiesList 0x10
@@ -41,35 +21,68 @@ uint64_t CanAttack = 0x3EAFE0;
 #define oEntityBuffer 0x18 //clientValues + EntityBuffer
 
 
-#define oDisplayName 0x6e0 //BasePlayer -> _DisplayName
+//BasePlayer Class
+#define oPlayerModel 0x4C0		//BasePlayer: PlayerModel playerModel
+#define oWasSleeping 0x521		//BasePlayer: Bool wasSleeping				not used
+#define oWasDead 0x523			//BasePlayer: Bool wasDead
+#define oPlayerFlags 0x680		//BasePlayer: BasePlayer.PlayerFlags playerFlags
+#define oBelt 0x6b8				//BasePlayer: PlayerBelt Belt
+#define oPlayerInventory 0x690	//BasePlayer: PlayerInvetory inventory
+#define oPlayerInput 0x4E0		//BasePlayer: PlayerInput input
+#define oPlayerMovement 0x4E8	//BasePlayer: BaseMovement movement
+#define oSteamID 0x6C8			//BasePlayer: ULONG UserID
+#define oDisplayName 0x6E0		//BasePlayer: string _displayName
+#define oCurrentTeam 0x598		//BasePlayer: ULONG Current Team
+#define oClientTeam 0x5a0		//BasePlayer: PlayerTeam clientTeam
+#define oActiveUID 0x5D0		//BasePlayer: uint clActiveItem;
 
 
-#define oPlayerModel 0x4C0//0x4A8 //public PlayerModel playerModel; 
-#define oWasSleeping 0x521 //public Bool wasSleeping
-#define oWasDead 0x523 //public Bool wasDead
-#define oPlayerFlags 0x680//0x650//0x5F8 //	public BasePlayer.PlayerFlags playerFlags;
-#define oBelt 0x6b8//0x688//0x28
-#define oBeltContents 0x38
-#define oHeld 0x98  // private EntityRef heldEntity;
-#define oPlayerInventory 0x690//0x668//0x660  //	public PlayerInventory inventory;
-#define oPlayerInput 0x4E0  //	public PlayerInput input; 
-#define oPlayerMovement 0x4D0  // public BaseMovement movement;
-#define oSteamID 0x640 //	public ulong userID;
-#define oPlayerName 0x6B8//0x6B0    //	protected string _displayName
-#define oNoBlockAiming 0x6B0 //public bool clothingBlocksAiming; //IDK THIS OFFSET
-#define oSpeedReduction 0x6B4 //	public float clothingMoveSpeedReduction;
-#define oMagazine 0x2A0 
-#define oVisible 0x248  // internal bool visible;
-#define oNoAimSway 0x6BC     //	public float clothingAccuracyBonus;
-#define oLifestate 0x204 //	public BaseCombatEntity.LifeState lifestate;
-#define oClientTeam 0x5a0 //540 // public PlayerTeam clientTeam
-#define oCurrentTeam 0x598	//ULONG Current Team
+//PlayerInventory Class
+#define oContainerMain 0x20		//PlayerInventory: ItemContainer containerMain
+#define oContainerBelt 0x28		//PlayerInventory: ItemContainer containerBelt
+#define oContainerWear 0x38		//PlayerInventory: ItemContainer containerWear
+
+//ItemContainer Class
+#define oUID 0x2c				//ItemContainer: uint uid
+#define oItemList 0x38			//ItemContainer: List(item) itemList
+
+//Item Class
+#define oHeld 0x98				//Item:	EntityRef heldEntity
 
 //PlayerModel Class
-#define oSmoothLookAngle 0x20
-#define oPlayerPosition 0x208
+#define oSmoothLookAngle 0x20	//PlayerModel: Vector3 SmoothLookAngle
+#define oPlayerPosition 0x208	//PlayerModel: Vector3 position
 
-#define oActiveUID 0x5D0//0x5C8//0x570  //	private uint clActiveItem;
+//BaseProjectile Class			Referenced by oHeld
+#define oRecoil 0x2D8			//BaseProjectile: RecoilProperties recoil;
+#define oAimCone 0x2E8			//BaseProjectile: float aimCone;
+#define oHipAimCone 0x2EC		//BaseProjectile: float hipAimCone;
+#define oAimconePenaltyPerShot 0x2F0	//BaseProjectile: float aimconePenaltyPerShot;
+#define oAimconePenaltyMax 0x2F4		//BaseProjectile: float hipAimCone;
+#define oStancePenalty 0x300 	//BaseProjectile: float stancePenalty;
+#define oAimConePenalty 0x320 	//BaseProjectile: float aimconePenalty;		//increases from 0 to 1.0 as you fire
+
+
+//RecoilProperties Class
+#define oRecoilMinYaw 0x18		//RecoilProperties: float recoilYawMin
+#define oRecoilMaxYaw 0x1C		//RecoilProperties: float recoilYawMax
+#define oRecoilMinPitch 0x20	//RecoilProperties: float recoilPitchMin
+#define oRecoilMaxPitch 0x24	//RecoilProperties: float recoilPitchMax
+#define oADSScale 0x30			//RecoilProperties: float ADSScale
+#define oMovementPenalty 0x34	//RecoilProperties: float movementPenalty;
+
+//ArrayList Class				used for lists like oItemList
+#define oArrayListItems 0x10			//ArrayList: object[] 0x10
+#define oArrayListSize	0x18			//ArrayList: int 0x18
+
+
+//not used
+#define oNoBlockAiming 0x6B0	//public bool clothingBlocksAiming; //IDK THIS OFFSET
+#define oSpeedReduction 0x6B4	//	public float clothingMoveSpeedReduction;
+#define oMagazine 0x2A0 
+#define oVisible 0x248			// internal bool visible;
+#define oNoAimSway 0x6BC		//	public float clothingAccuracyBonus;
+#define oLifestate 0x204		//	public BaseCombatEntity.LifeState lifestate;
 #define oPlayerHealth 0x20C  //private float _health;
 #define oAuto 0x270   // public bool automatic;
 #define oDistance 0x278 //private Transform attachmentBoneCache; public float maxDistance; // 0x278
@@ -88,21 +101,6 @@ uint64_t CanAttack = 0x3EAFE0;
 #define oKeyFocus 0x94  // private bool hasKeyFocus;
 #define oClientTickInterval 0x5C8  // public float clientTickInterval;
 //#define oNoClip  0x563900     //public static void noclip(ConsoleSystem.Arg arg) { }
-//Recoil
-#define oRecoilMinYaw 0x18 //public float recoilYawMin
-#define oRecoilMaxYaw 0x1C
-#define oRecoilMinPitch 0x20
-#define oRecoilMaxPitch 0x24
-#define oADSScale 0x30 //public float ADSScale;
-#define oMovementPenalty 0x34 //public float movementPenalty;
-#define oRecoil 0x2D8  //public RecoilProperties recoil;
-//AntiSpread
-#define oAimCone 0x2E8  // public float aimCone;
-#define oHipAimCone 0x2EC // public float hipAimCone;
-#define oAimconePenaltyPerShot 0x2F0  // public float aimconePenaltyPerShot;
-#define oAimconePenaltyMax 0x2F4	// public float hipAimCone;
-#define oStancePenalty 0x300 // private float stancePenalty;
-#define oAimConePenalty 0x320 // private float aimconePenalty;		//increases from 0 to 1.0 as you fire
 
 enum PlayerFlags {
 	Unused1 = 1,
@@ -468,7 +466,7 @@ public:
 
 	const wchar_t* GetName()
 	{
-		pUncStr Str = ((pUncStr)(mem->Read<DWORD64>((UINT_PTR)this + oPlayerName))); //	protected string _displayName
+		pUncStr Str = ((pUncStr)(mem->Read<DWORD64>((UINT_PTR)this + oDisplayName))); //	protected string _displayName
 		if (!Str) return L""; return Str->str;
 	}
 
@@ -578,8 +576,8 @@ public:
 	WeaponData* GetWeaponInfo(int Id)
 	{
 		DWORD64 Inventory = mem->Read<DWORD64>((UINT_PTR)this + oPlayerInventory);//	public PlayerInventory inventory;
-		DWORD64 Belt = mem->Read<DWORD64>(Inventory + 0x28);
-		DWORD64 ItemList = mem->Read<DWORD64>(Belt + 0x38);// 	public List`1<Item> itemList;
+		DWORD64 Belt = mem->Read<DWORD64>(Inventory + oContainerBelt);
+		DWORD64 ItemList = mem->Read<DWORD64>(Belt + oItemList);// 	public List`1<Item> itemList;
 		DWORD64 Items = mem->Read<DWORD64>(ItemList + 0x10); //	public List`1<InventoryItem.Amount> items;
 		return (WeaponData*)mem->Read<DWORD64>(Items + 0x20 + (Id * 0x8));
 	}
