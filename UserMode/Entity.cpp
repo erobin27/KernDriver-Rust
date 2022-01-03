@@ -2,7 +2,6 @@
 #include "GameSDK.h"
 #include "AimFunc.h"
 #include "GStructs.h"
-#include "VMProtectSDK.h"
 
 bool mfound = false;
 

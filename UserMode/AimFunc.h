@@ -7,7 +7,7 @@ bool compareWeapon(std::wstring compareTo ,std::wstring currWeapon) {
 }
 
 void callRecoil(std::string gunName, WeaponData* Weapon) {
-	if (recoilMultiplier.find(gunName) == recoilMultiplier.end()) {
+	if (recoilMultiplier.find(gunName) == recoilMultiplier.end()) { 
 		std::cout << "ERROR: " << gunName << " not found in config file." << std::endl;
 	}
 	

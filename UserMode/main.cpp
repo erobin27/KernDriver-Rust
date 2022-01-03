@@ -3,9 +3,45 @@
 #include "globalFunctions.h"
 #include <iostream>
 #include <windows.h> //for colors
+#include <GLFW/glfw3.h>
 
 Memory* mem = nullptr;
 UINT64 StringAddress = 0;
+
+int DrawRadar() {
+	GLFWwindow* window;
+
+	/* Initialize the library */
+	if (!glfwInit())
+		return -1;
+
+	/* Create a windowed mode window and its OpenGL context */
+	window = glfwCreateWindow(800, 800, "Sonar", NULL, NULL);
+	if (!window)
+	{
+		glfwTerminate();
+		return -1;
+	}
+
+	/* Make the window's context current */
+	glfwMakeContextCurrent(window);
+
+	/* Loop until the user closes the window */
+	while (!glfwWindowShouldClose(window))
+	{
+		/* Render here */
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
+
+		/* Poll for and process events */
+		glfwPollEvents();
+	}
+
+	glfwTerminate();
+	return 0;
+}
 
 void printInfo() {
 	cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable << endl;
@@ -174,6 +210,7 @@ int main()
 		if (!base_address)
 		{
 			printf("Could Not Find Game...");
+			DrawRadar();
 			Sleep(5000);
 		}
 		else

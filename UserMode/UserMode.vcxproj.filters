@@ -53,20 +53,12 @@
     <ClInclude Include="myMath.h">
       <Filter>Header Files\GameFiles</Filter>
     </ClInclude>
-    <ClInclude Include="VMProtectSDK.h">
-      <Filter>Header Files\GameFiles</Filter>
-    </ClInclude>
     <ClInclude Include="globalFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="AdditionalLib\VMProtectSDK64.lib">
-      <Filter>AdditionalLib</Filter>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt">
