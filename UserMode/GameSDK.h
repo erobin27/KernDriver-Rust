@@ -45,7 +45,6 @@ uint64_t CanAttack = 0x3EAFE0;
 
 
 #define oPlayerModel 0x4C0//0x4A8 //public PlayerModel playerModel; 
-#define oPlayerPosition 0x208
 #define oWasSleeping 0x521 //public Bool wasSleeping
 #define oWasDead 0x523 //public Bool wasDead
 #define oPlayerFlags 0x680//0x650//0x5F8 //	public BasePlayer.PlayerFlags playerFlags;
@@ -65,6 +64,10 @@ uint64_t CanAttack = 0x3EAFE0;
 #define oLifestate 0x204 //	public BaseCombatEntity.LifeState lifestate;
 #define oClientTeam 0x5a0 //540 // public PlayerTeam clientTeam
 #define oCurrentTeam 0x598	//ULONG Current Team
+
+//PlayerModel Class
+#define oSmoothLookAngle 0x20
+#define oPlayerPosition 0x208
 
 #define oActiveUID 0x5D0//0x5C8//0x570  //	private uint clActiveItem;
 #define oPlayerHealth 0x20C  //private float _health;
@@ -424,11 +427,38 @@ public:
 		return GetBone(GetTransform(BoneID));
 	}*/
 
+
+
+	Vector3 GetPosition() {
+		DWORD64 Model = mem->Read<DWORD64>((UINT_PTR)this + oPlayerModel);
+		return mem->Read<Vector3>(Model + oPlayerPosition);
+	}
+
+	int GetLookDegree() {
+		DWORD64 Model = mem->Read<DWORD64>((UINT_PTR)this + oPlayerModel);
+		int totalDegree = (int)mem->Read<Vector3>(Model + oSmoothLookAngle).y;
+		int  actualDegree = totalDegree % 360;
+		if (actualDegree < 0) {
+			actualDegree = 360 + actualDegree;
+		}
+		return actualDegree;
+	}
+
+	ULONG GetTeam() {
+		return mem->Read<ULONG>((UINT_PTR)this + oCurrentTeam);
+	}
+
+	bool isSleeping() {
+		UINT64 playerFlags = mem->Read<UINT64>((UINT_PTR)this + oPlayerFlags);
+		if (playerFlags == PlayerFlags::Sleeping)	return true;
+
+		return false;
+	}
+
 	float GetHealth()
 
 	{
 		return mem->Read<FLOAT>((UINT_PTR)this + oPlayerHealth); //private float _health;
-		//обновил
 	}
 
 	float HeliHealtch() {
@@ -440,7 +470,6 @@ public:
 	{
 		pUncStr Str = ((pUncStr)(mem->Read<DWORD64>((UINT_PTR)this + oPlayerName))); //	protected string _displayName
 		if (!Str) return L""; return Str->str;
-		//обновил
 	}
 
 	/*

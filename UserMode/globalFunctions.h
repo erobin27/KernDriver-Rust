@@ -31,8 +31,6 @@ std::wstring readWCharString(DWORD64 address, int length) {
 	return str;
 }
 */
-
-
 //Colors
 #define BLUE  "Color 09"
 #define BLACK  "Color 00"
@@ -45,6 +43,10 @@ std::wstring readWCharString(DWORD64 address, int length) {
 #define CLEAR "cls"
 #define ALERT "Color 3C"
 
+void textcolor(int color) {
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(h, color);
+}
 //printf("%sred\n", KRED);
 //printf("%sgreen\n", KGRN);
 //printf("%syellow\n", KYEL);

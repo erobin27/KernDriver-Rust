@@ -91,11 +91,13 @@ void basePlayerLoop() {
 }
 
 void entityLoop() {
+	BasePlayer* LocalPlayer = nullptr;
 	Vector3 LocalPos;
 	ULONG LocalTeam;
+	int LocalLookingDegree;
 
-	std::vector<Vector3> Players;
-	std::vector<std::string> PlayerNames;
+	//std::vector<Vector3> Players;
+	std::vector<BasePlayer*> Players;
 	DWORD64 BaseNetworkable;
 	BaseNetworkable = mem->Read<DWORD64>(mem->get_module_base_address("GameAssembly.dll") + g_BN_Steam);
 	DWORD64 EntityRealm = mem->Read<DWORD64>(BaseNetworkable + oEntityRealm);
@@ -116,57 +118,41 @@ void entityLoop() {
 		std::string ClassName = readCharString(ObjName, 15);
 		//std::cout << ClassName << std::endl;
 		//std::cout << LocalPos.Length() << std::endl;
+
 		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
 		if (Object <= 100000) continue;
 		DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x28);
-		if (ClassName.find(std::string("BasePlayer")) != std::string::npos) {
-			if (LocalPos.Length() == 0) {
-				DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
-				if (Object <= 100000) continue;
-				DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x30);
-				if (ObjectClass <= 100000) continue;
-				DWORD64 ObjectName = mem->Read<DWORD64>(ObjectClass + 0x60);
-				std::string name = readCharString(ObjectName, 60);
+
+		if (ClassName.find(std::string("BasePlayer")) != std::string::npos) {			//if the entity is a player
+			BasePlayer* Player = (BasePlayer*)ObjectClass;			//Create a player object for the player
+			if (!LocalPlayer) {			//if local player has not been found
+				DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+				if (LocalObjectClass <= 100000) continue;
+				DWORD64 LocalObjectName = mem->Read<DWORD64>(LocalObjectClass + 0x60);
+
+				std::string name = readCharString(LocalObjectName, 60);
 				if (name.find(std::string("Local")) != std::string::npos) {//if local is contained in class name
-					DWORD64 Player = mem->Read<DWORD64>(Object + 0x28);
-					DWORD64 Model = mem->Read<DWORD64>(Player + oPlayerModel);
-					Vector3 Position = mem->Read<Vector3>(Model + 0x208);
-					LocalPos = Position;
-					LocalTeam = mem->Read<ULONG>(Player + oCurrentTeam);
+					LocalPlayer = Player;
+					LocalPos = LocalPlayer->GetPosition();
+					LocalTeam = LocalPlayer->GetTeam();
+					LocalLookingDegree = LocalPlayer->GetLookDegree();
 				}
-			}
-			else if(!mem->Read<bool>(ObjectClass + 0x521)) {
-				ULONG PlayerTeam = mem->Read<ULONG>(ObjectClass + oCurrentTeam);
-
-				if (LocalTeam == PlayerTeam && LocalTeam != 0) continue;	//if the players are on your team dont show on radar
-				if (mem->Read<bool>(ObjectClass + oWasSleeping)) continue;	//dont show if the player is sleeping
+			}//end local player
+			else if (!Player->isSleeping()) {	//if not sleeping
+				if (LocalTeam == Player->GetTeam() && LocalTeam != 0) continue;	//if the players are on your team dont show on radar
 				if (mem->Read<bool>(ObjectClass + oWasDead)) continue;	//dont show on radar if player is dead
-				DWORD64 Model = mem->Read<DWORD64>(ObjectClass + oPlayerModel);
-				Vector3 Position = mem->Read<Vector3>(Model + 0x208);
-				Players.push_back(Position);
+				Players.push_back(Player);
 			}
-			//DWORD64 pName = mem->Read<DWORD64>(ObjectClass + oDisplayName);
-			//PlayerNames.push_back(readCharString(pName + 0x10, 15));
-			//std::wcout << readWCharString(pName + 0x10, 20) << std::endl;
-			//std::cout << Position[0] << ", " << Position[1] << ", " << Position[2] << std::endl;	//position[1] is the height the player is at
-		}
-
-		if (ObjectClass <= 100000) continue;
-		DWORD64 ObjectName = mem->Read<DWORD64>(ObjectClass + 0x60);
-	}
-	//std::cout << "LOCAL PLAYER TEAM: " << LocalTeam << std::endl;
-	//std::cout << "LOCAL PLAYER POS: " << LocalPos[0] << ", " << LocalPos[1] << ", " << LocalPos[2] << std::endl;
-	for (int i = 0; i < Players.size(); i++) {
-		Vector3 Position = Players[i];
-		//std::cout << i << ": " << Position[0] << ", " << Position[1] << ", " << Position[2] << std::endl;
-	}
+		}//end BasePlayer if statement
+	}//end entity forloop
+	
 
 
 
 	//RADAR
-	std::vector<std::pair<int, int>> RadarDegrees;
+	std::vector<std::pair<int, int>> RadarDegrees; //angle, distance
 	for (int i = 0; i < Players.size(); i++) {
-		Vector3 Position = Players[i];
+		Vector3 Position = Players[i]->GetPosition();
 		float xPos = Position[0] - LocalPos[0];
 		float yPos = Position[2] - LocalPos[2];
 		int distance = sqrt(pow(xPos, 2) + pow(yPos, 2));
