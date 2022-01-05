@@ -448,7 +448,7 @@ public:
 
 	bool isSleeping() {
 		UINT64 playerFlags = mem->Read<UINT64>((UINT_PTR)this + oPlayerFlags);
-		if (playerFlags == PlayerFlags::Sleeping)	return true;
+		if (playerFlags == PlayerFlags::Sleeping || playerFlags == (PlayerFlags::Sleeping + PlayerFlags::Workbench1) || playerFlags == (PlayerFlags::Sleeping + PlayerFlags::Workbench2) || playerFlags == (PlayerFlags::Sleeping + PlayerFlags::Workbench3))	return true;
 
 		return false;
 	}

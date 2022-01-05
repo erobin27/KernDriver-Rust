@@ -1,46 +1,27 @@
 #include "UM-Memory.h"
 #include "Entity.h"
 #include "globalFunctions.h"
+#include "RenderGraphics.h"
 #include <iostream>
 #include <windows.h> //for colors
-#include <GLFW/glfw3.h>
+
 
 Memory* mem = nullptr;
 UINT64 StringAddress = 0;
 
-int DrawRadar() {
-	GLFWwindow* window;
-
-	/* Initialize the library */
-	if (!glfwInit())
-		return -1;
-
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(800, 800, "Sonar", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		return -1;
+void tempFunc() {
+	GLFWwindow* window = CreateGLWindow();
+	std::vector<Vector3> NearbyPlayersInfo;
+	drawWindow(window, NearbyPlayersInfo);
+	NearbyPlayersInfo.push_back({ 0.0, 0.1, 2.0 });
+	for(int i = 0; i < 9; i++) {
+		Sleep(500);
+		NearbyPlayersInfo[0].x += .05;
+		NearbyPlayersInfo[0].y += .05;
+		drawWindow(window, NearbyPlayersInfo);
 	}
 
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
-
-	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window))
-	{
-		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
-		/* Poll for and process events */
-		glfwPollEvents();
-	}
-
-	glfwTerminate();
-	return 0;
+	closeWindow();
 }
 
 void printInfo() {
@@ -111,6 +92,7 @@ void gameLoop() {
 			while (!(GetKeyState(VK_END) & 0x8000)) {
 				system(CLEAR);
 				entityLoop();
+
 				Sleep(1000);
 			}
 			system(WHITE);
@@ -168,8 +150,8 @@ void gameLoop() {
 		}
 
 		if (GetKeyState(VK_PRIOR) & 0x8000) { // PAGE UP INCREASE RADAR
-			if (radarDistance + radarAdjustment >= 400) {
-				radarDistance = 400;
+			if (radarDistance + radarAdjustment >= 600) {
+				radarDistance = 600;
 			}
 			else {
 				radarDistance += radarAdjustment;//increase radar
@@ -210,7 +192,7 @@ int main()
 		if (!base_address)
 		{
 			printf("Could Not Find Game...");
-			DrawRadar();
+			tempFunc();
 			Sleep(5000);
 		}
 		else
