@@ -65,6 +65,9 @@
     <ClInclude Include="RenderGraphics.h">
       <Filter>Header Files\GameFiles</Filter>
     </ClInclude>
+    <ClInclude Include="skCrypter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt">

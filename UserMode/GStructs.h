@@ -1,4 +1,5 @@
 #pragma once
+
 typedef struct _UncStr
 {
 	char stub[0x10];
@@ -6,7 +7,7 @@ typedef struct _UncStr
 	wchar_t str[1];
 } *pUncStr;
 
-
+/*
 std::string RPMString(DWORD64 address)
 {
 	if (!(void*)address)
@@ -25,3 +26,4 @@ std::string RPMString(DWORD64 address)
 	}
 	return nameString;
 }
+*/

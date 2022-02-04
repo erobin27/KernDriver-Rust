@@ -1,9 +1,28 @@
-#include "UM-Memory.h"
+#include "Entity.h"
 #include "GameSDK.h"
 #include "AimFunc.h"
-#include "GStructs.h"
+#include <codecvt>
 
 bool mfound = false;
+LPlayerBase LocalPlayer;
+
+enum RadarColors {
+	Enemy = 1,
+	ToolCupboard = 2,
+	GroundItem = 3,
+	Sleeper = 4,
+};
+
+float toDegrees(float val) {
+	return val / 3.141592653 * 180;
+}
+
+std::string wstring_to_string(const std::wstring& wstr)
+{
+	static std::wstring_convert< std::codecvt_utf8<wchar_t>, wchar_t > converter;
+
+	return converter.to_bytes(wstr);
+}
 
 std::string readCharString(DWORD64 address, int length) {
 	std::string str = "";
@@ -89,13 +108,19 @@ void basePlayerLoop() {
 	}
 }
 
-void entityLoop() {
+void radarLoop(Radar &myRadar) {
+	myRadar.clearBlips();
+
 	BasePlayer* LocalPlayer = nullptr;
 	Vector3 LocalPos;
 	ULONG LocalTeam;
 	int LocalLookingDegree;
-
-	//std::vector<Vector3> Players;
+	
+	/*
+	* 
+	* FIND THE ENTITY LOOP
+	* 
+	*/
 	std::vector<BasePlayer*> Players;
 	DWORD64 BaseNetworkable;
 	BaseNetworkable = mem->Read<DWORD64>(mem->get_module_base_address("GameAssembly.dll") + g_BN_Steam);
@@ -108,20 +133,55 @@ void entityLoop() {
 	//printf("EntityCount: %i\n",EntityCount);
 	DWORD64 EntityBuffer = mem->Read<DWORD64>(ClientEntities_values + 0x18);
 
+
+	/*
+	* 
+	* LOOP THROUGH ALL ENTITY'S AND FIND ALL THE PLAYERS
+	* 
+	*/
 	for (int i = 0; i <= EntityCount; i++)
 	{
 		DWORD64 Entity = mem->Read<DWORD64>(EntityBuffer + 0x20 + (i * 0x8));
 		if (Entity <= 100000) continue;
 		DWORD64 Obj = mem->Read<DWORD64>(Entity + 0x0);
 		DWORD64 ObjName = mem->Read<DWORD64>(Obj + 0x10);
-		std::string ClassName = readCharString(ObjName, 15);
+		std::string ClassName = readCharString(ObjName, 16);
 		//std::cout << ClassName << std::endl;
 		//std::cout << LocalPos.Length() << std::endl;
 
 		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
 		if (Object <= 100000) continue;
 		DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x28);
+		//std::cout << ClassName << std::endl;
+		//std::cout << ClassName << std::endl;
+		/*
+		if (ClassName.find(std::string("LootContainer")) != std::string::npos) {
+			std::cout << ClassName << std::hex << 0x20 + (i * 0x8) << std::endl;
+			DWORD64 storNamePtr = mem->Read<DWORD64>(ObjectClass + 0x368);
+			int storNameLen = mem->Read<int>(storNamePtr + 0x10);
+			DWORD64 storName = storNamePtr + 0x14;
+			std::wstring wstorString = readWCharString(storName, storNameLen);
+			//std::cout << wstring_to_string(wstorString) << std::endl;
+		}
 
+		if (ClassName.find(std::string("StorageContainer")) != std::string::npos) {
+			std::cout << ClassName << std::hex << 0x20 + (i * 0x8) << std::endl;
+			DWORD64 storNamePtr = mem->Read<DWORD64>(Entity + 0x60);
+			int storNameLen = mem->Read<int>(storNamePtr + 0x10);
+			DWORD64 storName = storNamePtr + 0x14;
+			std::wstring wstorString = readWCharString(storName, storNameLen);
+			//std::cout << wstring_to_string(wstorString) << std::endl;
+		}
+		if (ClassName.find(std::string("Bear")) != std::string::npos) {
+			std::cout << ClassName << std::endl;
+		}
+		/*
+
+		/*
+		* 
+		* IF THE ENTITY IS A PLAYER
+		* 
+		*/
 		if (ClassName.find(std::string("BasePlayer")) != std::string::npos) {			//if the entity is a player
 			BasePlayer* Player = (BasePlayer*)ObjectClass;			//Create a player object for the player
 			if (!LocalPlayer) {			//if local player has not been found
@@ -135,26 +195,37 @@ void entityLoop() {
 					LocalPos = LocalPlayer->GetPosition();
 					LocalTeam = LocalPlayer->GetTeam();
 					LocalLookingDegree = LocalPlayer->GetLookDegree();
+					myRadar.createPlayerBlips(Player, Radar::blipType::localPlayer);
 				}
 			}//end local player
 			else if (!Player->isSleeping()) {	//if not sleeping
-				if (LocalTeam == Player->GetTeam() && LocalTeam != 0) continue;	//if the players are on your team dont show on radar
+				if (LocalTeam == Player->GetTeam() && LocalTeam != 0) continue;	//if the players are on your team dont show on radar		<---------- IS TEAMMATE
 				if (mem->Read<bool>(ObjectClass + oWasDead)) continue;	//dont show on radar if player is dead
-				Players.push_back(Player);
+				//Players.push_back(Player);
+				myRadar.createPlayerBlips(Player, Radar::blipType::enemy);
 			}
 		}//end BasePlayer if statement
 	}//end entity forloop
-	
 
-
+	/*
+	std::vector<Vector3> DrawRadarPosition;
 
 	//RADAR
 	std::vector<std::pair<int, int>> RadarDegrees; //angle, distance
 	for (int i = 0; i < Players.size(); i++) {
 		Vector3 Position = Players[i]->GetPosition();
+		Vector3 DrawPosition;
 		float xPos = Position[0] - LocalPos[0];
 		float yPos = Position[2] - LocalPos[2];
 		int distance = sqrt(pow(xPos, 2) + pow(yPos, 2));
+
+		//float localLookRadians = LocalLookingDegree / 180 * 3.141592653;
+
+
+		float rotX  = cos(LocalLookingDegree * 3.141592653 / 180)* xPos - sin(LocalLookingDegree * 3.141592653 / 180) * yPos;
+		float rotY = cos(LocalLookingDegree * 3.141592653 / 180) * yPos + sin(LocalLookingDegree * 3.141592653 / 180) * xPos;
+		if (distance < radarDistance)	DrawRadarPosition.push_back({ rotX / radarDistance, rotY/radarDistance, (float)RadarColors::Enemy});
+
 		float Angle = 0;
 		if ((xPos > 0 && yPos > 0) || (xPos < 0 && yPos < 0))	//if in quadrant 1 or 3
 		{
@@ -196,9 +267,10 @@ void entityLoop() {
 		system("Color 0F");
 		std::cout << radarDistance << "M clear...	hold END to stop radar scanning." << std::endl;
 	}
+
+	drawWindow(window, DrawRadarPosition);
+	*/
 }
-
-
 
 
 /*

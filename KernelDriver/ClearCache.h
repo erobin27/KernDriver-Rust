@@ -12,16 +12,16 @@ namespace cleaner {
 
 
 		BOOLEAN printPiDDBTable(PRTL_AVL_TABLE table) {
-
-			DbgPrint("PiDDBCacheTable: %p", table);
-			DbgPrint("PiDDBCacheTable->NumberGenericTableElements: %d", table->NumberGenericTableElements);
-			DbgPrint("First child: %p", table->BalancedRoot.RightChild);
+			
+			//DbgPrint("PiDDBCacheTable: %p", table);
+			//DbgPrint("PiDDBCacheTable->NumberGenericTableElements: %d", table->NumberGenericTableElements);
+			//DbgPrint("First child: %p", table->BalancedRoot.RightChild);
 
 			UINT_PTR entry_address = reinterpret_cast<UINT_PTR>(table->BalancedRoot.RightChild) + sizeof(RTL_BALANCED_LINKS);
 			PiDDBCacheEntry* first_entry = reinterpret_cast<PiDDBCacheEntry*>(entry_address);
 
-			DbgPrint("Name: %ws", first_entry->DriverName.Buffer);
-			DbgPrint("Timestamp: %X", first_entry->TimeDateStamp);
+			//DbgPrint("Name: %ws", first_entry->DriverName.Buffer);
+			//DbgPrint("Timestamp: %X", first_entry->TimeDateStamp);
 
 			ULONG count = 0;
 
@@ -29,10 +29,10 @@ namespace cleaner {
 			{
 				PiDDBCacheEntry* cache_entry = reinterpret_cast<PiDDBCacheEntry*>(link);
 
-				DbgPrint("list_id[%lu] name: %wZ \t\t stamp: %x",
+				//DbgPrint("list_id[%lu] name: %wZ \t\t stamp: %x",
 					count,
 					cache_entry->DriverName,
-					cache_entry->TimeDateStamp);
+					cache_entry->TimeDateStamp;
 			}
 
 			return TRUE;
@@ -255,7 +255,7 @@ namespace cleaner {
 				ExReleaseResourceLite(PiDDBLock);
 			}
 
-			DbgPrint("-------------FINISHED LIST -------------");
+			//DbgPrint("-------------FINISHED LIST -------------");
 			//printPiDDBTable(PiDDBCacheTable);
 			return TRUE;
 		}
@@ -320,13 +320,13 @@ namespace cleaner {
 
 			MmUnloadedDrivers = *(PMM_UNLOADED_DRIVER*)ResolveRelativeAddress(MmUnloadedDriversInstr, 3, 7);
 			MmLastUnloadedDriver = (PULONG)ResolveRelativeAddress(MmLastUnloadedDriverInstr, 2, 6);
-			DbgPrint("MmUnloadedDrivers ModuleEnd: %x", MmUnloadedDrivers->ModuleEnd);
-			DbgPrint("MmUnloadedDrivers ModuleStart: %x", MmUnloadedDrivers->ModuleStart);
-			DbgPrint("MmUnloadedDrivers Name: %wZ", MmUnloadedDrivers->Name);
-			DbgPrint("MmUnloadedDrivers UnloadTime: %x", MmUnloadedDrivers->UnloadTime);
+			//DbgPrint("MmUnloadedDrivers ModuleEnd: %x", MmUnloadedDrivers->ModuleEnd);
+			//DbgPrint("MmUnloadedDrivers ModuleStart: %x", MmUnloadedDrivers->ModuleStart);
+			//DbgPrint("MmUnloadedDrivers Name: %wZ", MmUnloadedDrivers->Name);
+			//DbgPrint("MmUnloadedDrivers UnloadTime: %x", MmUnloadedDrivers->UnloadTime);
 
-			DbgPrint("MmUnloadedDrivers Addr: %x", MmUnloadedDrivers);
-			DbgPrint("MmLastUnloadedDriver Addr: %x", MmLastUnloadedDriver);
+			//DbgPrint("MmUnloadedDrivers Addr: %x", MmUnloadedDrivers);
+			//DbgPrint("MmLastUnloadedDriver Addr: %x", MmLastUnloadedDriver);
 			return STATUS_SUCCESS;
 		}
 
@@ -366,7 +366,7 @@ namespace cleaner {
 			for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
 			{
 				PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-				DbgPrint("Entry %i: %wZ\t%x", Index, Entry->Name, Entry->UnloadTime);
+				//DbgPrint("Entry %i: %wZ\t%x", Index, Entry->Name, Entry->UnloadTime);
 				if (Modified)
 				{
 					//
@@ -385,7 +385,7 @@ namespace cleaner {
 				}
 				else if (RtlEqualUnicodeString(DriverName, &Entry->Name, TRUE))
 				{
-					DbgPrint("\n\nERASING DRIVER ENTRY: %S", Entry->Name);
+					//DbgPrint("\n\nERASING DRIVER ENTRY: %S", Entry->Name);
 					//
 					// Erase driver entry.
 					//

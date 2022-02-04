@@ -1,6 +1,4 @@
 ﻿#pragma once
-
-#include "Entity.h"
 #include "myMath.h"
 #include "settings.h"
 #include "GStructs.h"
@@ -9,8 +7,8 @@
 //game structs
 //[Base + g_BN_Steam] + oEntityRealm] + oClientEntitiesList] + oClientEntitiesValues]
 //client entities = read()
-#define g_BN 0x3112AE0			//0x32A4668
-#define g_BN_Steam 0x3112AE0 
+#define g_BN 0x3149A10			//0x32A4668
+#define g_BN_Steam 0x3149A10
 #define GOM 0x17C1F18			//doesn't change (usually)
 
 
@@ -20,6 +18,9 @@
 #define oEntityCount 0x10 ////clientValues + EntityCount
 #define oEntityBuffer 0x18 //clientValues + EntityBuffer
 
+//BaseCombatEntity Class
+#define oPlayerHealth 0x224		//private float _health;
+#define oMaxHealth 0x228		//float _maxHealth
 
 //BasePlayer Class
 #define oPlayerModel 0x4C0		//BasePlayer: PlayerModel playerModel
@@ -35,12 +36,12 @@
 #define oCurrentTeam 0x598		//BasePlayer: ULONG Current Team
 #define oClientTeam 0x5a0		//BasePlayer: PlayerTeam clientTeam
 #define oActiveUID 0x5D0		//BasePlayer: uint clActiveItem;
-
+#define oModelState 0x5F8		//BasePlayer: modelstate modelstate;
 
 //PlayerInventory Class
 #define oContainerMain 0x20		//PlayerInventory: ItemContainer containerMain
 #define oContainerBelt 0x28		//PlayerInventory: ItemContainer containerBelt
-#define oContainerWear 0x38		//PlayerInventory: ItemContainer containerWear
+#define oContainerWear 0x30		//PlayerInventory: ItemContainer containerWear
 
 //ItemContainer Class
 #define oUID 0x2c				//ItemContainer: uint uid
@@ -71,6 +72,9 @@
 #define oADSScale 0x30			//RecoilProperties: float ADSScale
 #define oMovementPenalty 0x34	//RecoilProperties: float movementPenalty;
 
+//ModelState Class
+#define oModelFlags 0x24	//int enum ModelFlags
+
 //ArrayList Class				used for lists like oItemList
 #define oArrayListItems 0x10			//ArrayList: object[] 0x10
 #define oArrayListSize	0x18			//ArrayList: int 0x18
@@ -83,7 +87,6 @@
 #define oVisible 0x248			// internal bool visible;
 #define oNoAimSway 0x6BC		//	public float clothingAccuracyBonus;
 #define oLifestate 0x204		//	public BaseCombatEntity.LifeState lifestate;
-#define oPlayerHealth 0x20C  //private float _health;
 #define oAuto 0x270   // public bool automatic;
 #define oDistance 0x278 //private Transform attachmentBoneCache; public float maxDistance; // 0x278
 #define oAttackRadius 0x27C //public float attackRadius;
@@ -126,6 +129,24 @@ enum PlayerFlags {
 	Workbench3 = 4194304,
 };
 
+namespace ModelState {
+	enum ModelFlags {
+		Ducked = 1,
+		Jumped = 2,
+		OnGround = 4,
+		Sleeping = 8,
+		Sprinting = 16,
+		OnLadder = 32,
+		Flying = 64,
+		Aiming = 128,
+		Prone = 256,
+		Mounted = 512,
+		Relaxed = 1024,
+		OnPhone = 2048,
+		Crawling = 4096,
+		HeadLock = 16384
+	};
+};
 const unsigned short Crc16Table[256] = {
 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
 0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -447,19 +468,24 @@ public:
 	}
 
 	bool isSleeping() {
-		UINT64 playerFlags = mem->Read<UINT64>((UINT_PTR)this + oPlayerFlags);
-		if (playerFlags == PlayerFlags::Sleeping || playerFlags == (PlayerFlags::Sleeping + PlayerFlags::Workbench1) || playerFlags == (PlayerFlags::Sleeping + PlayerFlags::Workbench2) || playerFlags == (PlayerFlags::Sleeping + PlayerFlags::Workbench3))	return true;
+		UINT64 modelFlag = mem->Read<int>(mem->Read<UINT64>((UINT_PTR)this + oModelState) + oModelFlags);
+		if (modelFlag == ModelState::ModelFlags::Sleeping || modelFlag == ModelState::ModelFlags::Sleeping + ModelState::ModelFlags::OnGround)	return true;
 
 		return false;
 	}
 
 	float GetHealth()
-
 	{
-		return mem->Read<FLOAT>((UINT_PTR)this + oPlayerHealth); //private float _health;
+		return mem->Read<float>((UINT_PTR)this + oPlayerHealth); //private float _health;
 	}
 
-	float HeliHealtch() {
+	float GetMaxHealth()
+	{
+		return mem->Read<float>((UINT_PTR)this + oMaxHealth); //private float _maxHealth;
+	}
+
+
+	float HeliHealth() {
 
 		return mem->Read<FLOAT>((UINT_PTR)this + 0x24); //public float health; // 0x24
 	}
@@ -650,4 +676,4 @@ public:
 	BasePlayer* BasePlayer = nullptr;
 };
 
-LPlayerBase LocalPlayer;
+extern LPlayerBase LocalPlayer;

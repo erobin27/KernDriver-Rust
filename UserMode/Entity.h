@@ -1,4 +1,5 @@
 #pragma once
+#include "RenderGraphics.h"
 
-void entityLoop();
+void radarLoop(Radar &myRadar);
 void basePlayerLoop();

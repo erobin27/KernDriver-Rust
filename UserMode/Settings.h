@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <iostream>
+#include <vector>
 
 extern std::map<std::string, std::vector<float>> recoilSettings;
 extern std::map<std::string, std::vector<float>> defaultRecoilSettings;

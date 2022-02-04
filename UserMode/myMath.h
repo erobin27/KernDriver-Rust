@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#define PI 3.141592653;
 
 class Vector3
 {

@@ -202,7 +202,7 @@ bool getSettings() {
 
 void updateSettings() {
 	if (!getSettings()){
-		cout << "ERROR: cannot find config.txt" << endl;
+		cout << skCrypt("ERROR: cannot find config.txt") << endl;
 	}
 }
 

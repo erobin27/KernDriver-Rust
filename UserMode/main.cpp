@@ -1,51 +1,85 @@
 #include "UM-Memory.h"
-#include "Entity.h"
 #include "globalFunctions.h"
 #include "RenderGraphics.h"
+#include "Entity.h"
 #include <iostream>
 #include <windows.h> //for colors
+#include <iomanip>
 
 
 Memory* mem = nullptr;
 UINT64 StringAddress = 0;
 
-void tempFunc() {
-	GLFWwindow* window = CreateGLWindow();
-	std::vector<Vector3> NearbyPlayersInfo;
-	drawWindow(window, NearbyPlayersInfo);
-	NearbyPlayersInfo.push_back({ 0.0, 0.1, 2.0 });
-	for(int i = 0; i < 9; i++) {
-		Sleep(500);
-		NearbyPlayersInfo[0].x += .05;
-		NearbyPlayersInfo[0].y += .05;
-		drawWindow(window, NearbyPlayersInfo);
+class ConsoleMenu {
+	vector<std::string> menuLines;
+	std::map<std::string, int> LineNums;
+public:
+	int lineCount = 0;
+	int selectedLine = 0;
+	std::map<int, std::string> variableMap;
+
+	void addMenuLine(std::string text, float num, std::string var) {
+		stringstream stream;
+		stream << std::fixed << std::setprecision(1) << num;
+		menuLines.push_back(text + stream.str());
+		LineNums[text] = lineCount;
+		variableMap[lineCount] = var;
+		lineCount++;
 	}
 
-	closeWindow();
-}
+	void updateMenuLine(std::string text, float num) {
+		stringstream stream;
+		stream << std::fixed << std::setprecision(1) << num;
+		menuLines[LineNums.at(text)] = (text + stream.str());
+	}
 
-void printInfo() {
-	cout << "Current Recoil Multiplier: " << recoilMultiplierAdjustable << endl;
-	cout << "Current AimCone Multiplier: " << aimconeMultiplier << endl;
-	cout << "Current Radar distance: " << radarDistance << endl;
+	int getLineNumberByText(std::string text) {
+		return LineNums.at(text);
+	}
+
+	void setSelected(int num) {
+		selectedLine = num;
+	}
+
+	std::string getSelectedLineVariable() {
+		return variableMap[selectedLine];
+	}
+
+	void printMenu() {
+		for (int i = 0; i < menuLines.size(); i++) {
+			if (i == selectedLine) {
+				//print green
+				textcolor(4);
+				cout << menuLines[i] << endl;
+				textcolor(7);
+			}
+			else {
+				cout << menuLines[i] << endl;
+			}
+		}
+	}
+};
+
+
+void printInfo(ConsoleMenu menu) {
+	menu.printMenu();
 	wcout << L"Held Weapon: " << HeldWeaponCheck << endl;
-	cout << "Last Gun Edited: " << recoilWeaponCheck << endl;
+	cout << skCrypt("Last Gun Edited: ") << recoilWeaponCheck << endl;
 	if (defaultRecoilSettingsAutomatic.find(recoilWeaponCheck) != defaultRecoilSettingsAutomatic.end())
-		cout << "Default Recoil Values: " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[0] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[1] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[2] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[3] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[4] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[5] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[6] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[7] << endl;
+		cout << skCrypt("Default Recoil Values: ") << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[0] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[1] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[2] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[3] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[4] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[5] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[6] << ", " << defaultRecoilSettingsAutomatic.at(recoilWeaponCheck)[7] << endl;
 	if (editedRecoilAutomatic.find(recoilWeaponCheck) != editedRecoilAutomatic.end())
-		cout << "Edited Recoil Values: " << editedRecoilAutomatic.at(recoilWeaponCheck)[0] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[1] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[2] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[3] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[4] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[5] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[6] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[7] << endl;
+		cout << skCrypt("Edited Recoil Values: ") << editedRecoilAutomatic.at(recoilWeaponCheck)[0] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[1] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[2] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[3] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[4] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[5] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[6] << ", " << editedRecoilAutomatic.at(recoilWeaponCheck)[7] << endl;
 }
 
-void printInstructions() {
+void printInstructions(ConsoleMenu menu) {
 	system(CLEAR);
-	printInfo();
+	printInfo(menu);
 	cout << "\n\n\n\n\n\n\n\n" << endl;
-	cout << "INSERT: Apply recoil and aimcone effects" << endl;
-	cout << "DEL: Revert recoil and aimcone to default values" << endl;
-	cout << "UP/DOWN: Adjust recoil multiplier" << endl;
-	cout << "LEFT/RIGHT: Adjust aimcone multiplier" << endl;
-	cout << "PAGE_UP/PAGE_DOWN: Adjust radar distance" << endl;
-	cout << "HOME: Start Radar Scanning\t\t END: hold to end radar scanning" << endl;
+	cout << skCrypt("INSERT: Apply recoil and aimcone effects") << endl;
+	cout << skCrypt("DEL: Revert recoil and aimcone to default values") << endl;
+	cout << skCrypt("UP/DOWN: Move up and down through the menu") << endl;
+	cout << skCrypt("LEFT/RIGHT: Adjust variables up and down") << endl;
+	cout << skCrypt("HOME: Start Radar Scanning\t\t END: hold to end radar scanning") << endl;
 }
 
 void gameLoop() {
@@ -54,11 +88,104 @@ void gameLoop() {
 	int radarAdjustment = 10;
 	int delayTime = 100;
 
-	printInstructions();
+	ConsoleMenu menu;
+	menu.addMenuLine("Current Recoil Multiplier: ", recoilMultiplierAdjustable, "RECOIL");
+	menu.addMenuLine("Current AimCone Multiplier: ", aimconeMultiplier, "AIMCONE");
+	menu.addMenuLine("Current Radar distance: ", radarDistance, "DISTANCE");
+	printInstructions(menu);
 
+	Radar myRadar = Radar(1000, 1000);
 	while (true) {
 		//printf("\t\tIN GAMELOOP:");
 		//entityLoop();
+		if (GetKeyState(VK_DOWN) & 0x8000) {
+			if (!(menu.selectedLine + 1 == menu.lineCount)) {
+				menu.setSelected(menu.selectedLine + 1);
+			}
+			printInstructions(menu);
+			Sleep(100);
+		}
+
+		if (GetKeyState(VK_UP) & 0x8000) {
+			if (!(menu.selectedLine - 1 == -1)) {
+				menu.setSelected(menu.selectedLine - 1);
+			}
+			printInstructions(menu);
+			Sleep(100);
+		}
+
+
+		//increase
+		if (GetKeyState(VK_RIGHT) & 0x8000) {
+			if (menu.getSelectedLineVariable() == "RECOIL") {
+				if (recoilMultiplierAdjustable + recoilAdjustment > 1.0f) {
+					recoilMultiplierAdjustable = 1.0f;
+				}
+				else {
+					recoilMultiplierAdjustable += recoilAdjustment;//increase recoil
+				}
+				menu.updateMenuLine("Current Recoil Multiplier: ", recoilMultiplierAdjustable);
+			}
+			else if (menu.getSelectedLineVariable() == "AIMCONE") {
+				if (aimconeMultiplier + aimconeAdjustment > 1.0f) {
+					aimconeMultiplier = 1.0f;
+				}
+				else {
+					aimconeMultiplier += aimconeAdjustment;//increase recoil
+				}
+				menu.updateMenuLine("Current AimCone Multiplier: ", aimconeMultiplier);
+			}
+			else if (menu.getSelectedLineVariable() == "DISTANCE") {
+				if (radarDistance + radarAdjustment >= 600) {
+					radarDistance = 600;
+				}
+				else {
+					radarDistance += radarAdjustment;//increase radar
+				}
+				menu.updateMenuLine("Current Radar distance: ", radarDistance);
+			}
+			
+			printInstructions(menu);
+			Sleep(delayTime);
+		}
+
+		if (GetKeyState(VK_LEFT) & 0x8000) { //decrease aimcone
+			if (menu.getSelectedLineVariable() == "RECOIL") {
+				if (recoilMultiplierAdjustable - recoilAdjustment <= 0.1f) {
+					recoilMultiplierAdjustable = 0.1f;
+				}
+				else {
+					recoilMultiplierAdjustable -= recoilAdjustment;//decrease recoil
+				}
+				menu.updateMenuLine("Current Recoil Multiplier: ", recoilMultiplierAdjustable);
+			}
+			else if (menu.getSelectedLineVariable() == "AIMCONE") {
+				if (aimconeMultiplier - aimconeAdjustment <= 0.0f) {
+					aimconeMultiplier = 0.1f;
+				}
+				else {
+					aimconeMultiplier -= aimconeAdjustment;//decrease aimcone
+				}
+				menu.updateMenuLine("Current AimCone Multiplier: ", aimconeMultiplier);
+			}
+			else if (menu.getSelectedLineVariable() == "DISTANCE") {
+				if (radarDistance - radarAdjustment <= 0) {
+					radarDistance = 10;
+				}
+				else {
+					radarDistance -= radarAdjustment;//decrease aimcone
+				}
+				menu.updateMenuLine("Current Radar distance: ", radarDistance);
+				printInstructions(menu);
+			}
+
+			printInstructions(menu);
+			Sleep(delayTime);
+		}
+
+
+
+
 
 		if (GetKeyState(VK_INSERT) & 0x8000) {
 			system(BLUE);
@@ -69,7 +196,7 @@ void gameLoop() {
 			Sleep(delayTime);
 			system(CLEAR);
 			system(WHITE);
-			printInstructions();
+			printInstructions(menu);
 		}
 
 		if (GetKeyState(VK_DELETE) & 0x8000) {
@@ -77,137 +204,69 @@ void gameLoop() {
 			recoilMultiplierAdjustable = 1.0f;
 			aimconeMultiplier = 1.0f;
 
+			menu.updateMenuLine("Current Recoil Multiplier: ", recoilMultiplierAdjustable);
+			menu.updateMenuLine("Current AimCone Multiplier: ", aimconeMultiplier);
+
 			initializeSettings();
 			basePlayerLoop();
 
 			Sleep(delayTime);
 			system(CLEAR);
 			system(WHITE);
-			printInstructions();
+			printInstructions(menu);
 		}
+
 
 		//Radar
 		if (GetKeyState(VK_HOME) & 0x8000) {
 			Sleep(1000);
 			while (!(GetKeyState(VK_END) & 0x8000)) {
+				if (glfwWindowShouldClose(myRadar.getWindow())) {
+					myRadar = Radar(1000, 1000);
+					break;
+				}
 				system(CLEAR);
-				entityLoop();
-
-				Sleep(1000);
+				myRadar.setRange(radarDistance);
+				radarLoop(myRadar);
+				myRadar.drawWindowTesting();
+				Sleep(100);
 			}
 			system(WHITE);
-			printInstructions();
+			printInstructions(menu);
+		}
+		else {
+			myRadar.drawBlank();
 		}
 
-
-		//INCREASE RECOIL MULTIPLIER
-		if (GetKeyState(VK_UP) & 0x8000) {
-			if (recoilMultiplierAdjustable + recoilAdjustment > 1.0f) {
-				recoilMultiplierAdjustable = 1.0f;
-			}
-			else {
-				recoilMultiplierAdjustable += recoilAdjustment;//increase recoil
-			}
-			printInstructions();
-			Sleep(delayTime);
-		}
-
-		//DECREASE RECOIL MULTIPLIER
-		if (GetKeyState(VK_DOWN) & 0x8000) { //decrease recoil
-			if (recoilMultiplierAdjustable - recoilAdjustment <= 0.0f) {
-				recoilMultiplierAdjustable = 0.1f;
-			} 
-			else {
-				recoilMultiplierAdjustable -= recoilAdjustment;//decrease recoil
-			}
-			printInstructions();
-			Sleep(delayTime);
-		}
-
-
-		//INCREASE AIMCONE MULTIPLIER
-		if (GetKeyState(VK_RIGHT) & 0x8000) {
-			if (aimconeMultiplier + aimconeAdjustment > 1.0f) {
-				aimconeMultiplier = 1.0f;
-			}
-			else {
-				aimconeMultiplier += aimconeAdjustment;//increase recoil
-			}
-			printInstructions();
-			Sleep(delayTime);
-		}
-
-		//DECREASE AIMCONE MULTIPLIER
-		if (GetKeyState(VK_LEFT) & 0x8000) { //decrease aimcone
-			if (aimconeMultiplier - aimconeAdjustment <= 0.0f) {
-				aimconeMultiplier = 0.1f;
-			}
-			else {
-				aimconeMultiplier -= aimconeAdjustment;//decrease aimcone
-			}
-			printInstructions();
-			Sleep(delayTime);
-		}
-
-		if (GetKeyState(VK_PRIOR) & 0x8000) { // PAGE UP INCREASE RADAR
-			if (radarDistance + radarAdjustment >= 600) {
-				radarDistance = 600;
-			}
-			else {
-				radarDistance += radarAdjustment;//increase radar
-			}
-			printInstructions();
-			Sleep(delayTime);
-		}
-
-		if (GetKeyState(VK_NEXT) & 0x8000) { // PAGE UP INCREASE RADAR
-			if (radarDistance - radarAdjustment <= 0) {
-				radarDistance = 10;
-			}
-			else {
-				radarDistance -= radarAdjustment;//decrease aimcone
-			}
-			printInstructions();
-			Sleep(delayTime);
-		}
-
-
-
-		//if (GetKeyState(VK_END) & 0x8000) {
-		//	break;
-		//}
 	}
 }
 
 int main()
 {
-	printf("PID: %d", process_id);
-	printf("Base Address: %Id", base_address);
 	bool breakVal = false;
 	
-		process_id = mem->get_process_id("RustClient.exe");
-		base_address = mem->get_module_base_address("GameAssembly.dll");
-	
+	auto gameName = skCrypt("RustClient.exe");
+	auto gameBase = skCrypt("GameAssembly.dll");
+	process_id = mem->get_process_id(gameName.decrypt());
+	base_address = mem->get_module_base_address(gameBase.decrypt());
+	gameName.clear();
+	gameBase.clear();
 
-		if (!base_address)
-		{
-			printf("Could Not Find Game...");
-			tempFunc();
-			Sleep(5000);
-		}
-		else
-		{
-			printf("Game Found...\n");
-			printf("PID: %d\n", process_id);
-			printf("Base Address: %Id\n", base_address);
-			printf("\tp: %p\n\n\n", base_address);
+
+	if (!base_address)
+	{
+		printf(skCrypt("Could Not Find Game..."));
+		Sleep(5000);
+	}
+	else
+	{
+		printf(skCrypt("Game Found...\n"));
 			
-			
-			initializeSettings();
-			gameLoop();
-			breakVal = true;
-		}
-	cout << "CLOSING";
+		initializeSettings();
+		gameLoop();
+		breakVal = true;
+	}
+	cout << skCrypt("CLOSING");
 	Sleep(1000);
 	return NULL;
 }
