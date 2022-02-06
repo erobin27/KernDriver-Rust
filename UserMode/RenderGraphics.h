@@ -85,7 +85,7 @@ public:
 	bool renderBlipName(Blip blip, bool rotate = true);
 	void drawBlank();
 	bool createPlayerBlips(BasePlayer* player, int type);
-	//void createLootBlips(EFTLoot loot);
+	void createLootBlips(LootContainer::container loot);
 	void drawRect(GLfloat x, GLfloat y, GLfloat length, GLfloat height, std::string color, float percent = 1.0, std::string alignment = "LEFT");
 	void drawHealthBar(GLfloat x, GLfloat y, float size, float percent, float yOffset = 10);
 	void drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bool down = false);

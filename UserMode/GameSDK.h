@@ -22,6 +22,13 @@
 #define oPlayerHealth 0x224		//private float _health;
 #define oMaxHealth 0x228		//float _maxHealth
 
+//BaseEntity Class
+#define oModel 0x128
+
+//Model Class
+#define oBoneTransforms 0x48
+
+
 //BasePlayer Class
 #define oPlayerModel 0x4C0		//BasePlayer: PlayerModel playerModel
 #define oWasSleeping 0x521		//BasePlayer: Bool wasSleeping				not used
@@ -265,6 +272,75 @@ enum BoneList : int
 	BreastCensor_LOD0 = 80,
 	BreastCensor_LOD1 = 83,
 	BreastCensor_LOD2 = 84
+};
+
+namespace LootContainer {
+	enum boxType {
+		hiddenhackablecrate = 0,
+		crate_basic = 1,
+		crate_elite = 2,
+		crate_mine = 3,
+		crate_normal = 4,
+		crate_normal_2 = 5,
+		crate_normal_2_food = 6,
+		crate_normal_2_medical = 7,
+		crate_tools = 8,
+		crate_underwater_advanced = 9,
+		crate_underwater_basic = 10,
+		crate_ammunition = 11,
+		crate_food_1 = 12,
+		crate_food_2 = 13,
+		crate_fuel = 14,
+		crate_medical = 15,
+		codelockedhackablecrate = 16,
+		codelockedhackablecrate_oilrig = 17,
+		bradley_crate = 18,
+		heli_crate = 19,
+		cratemarker = 20,
+		survey_crater = 21,
+		survey_crater_oil = 22,
+	};
+
+	enum spawnType {
+		GENERIC = 0,
+		PLAYER = 1,
+		TOWN = 2,
+		AIRDROP = 3,
+		CRASHSITE = 4,
+		ROADSIDE = 5,
+	};
+
+	struct container {
+		DWORD64 entity;
+		DWORD64 objClass;
+		std::string name;
+		int type;
+		Vector3 position;
+
+		void setType() {
+			if (this->name.find(std::string("crate_normal")) != std::string::npos) this->type = boxType::crate_normal;
+			else if (this->name.find(std::string("crate_normal_2")) != std::string::npos) this->type = boxType::crate_normal_2;
+			else if (this->name.find(std::string("crate_elite")) != std::string::npos) this->type = boxType::crate_elite;
+			else if (this->name.find(std::string("bradley_crate")) != std::string::npos) this->type = boxType::bradley_crate;
+			else if (this->name.find(std::string("heli_crate")) != std::string::npos) this->type = boxType::heli_crate;
+			else if (this->name.find(std::string("crate_underwater_advanced")) != std::string::npos) this->type = boxType::crate_underwater_advanced;
+			else
+			{
+				this->type = -1;
+			}
+		}
+
+		void setPosition() {
+			DWORD64 Object = mem->Read<DWORD64>(this->entity + 0x10);
+			if (Object <= 100000) return;
+			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+			if (LocalObjectClass <= 100000) return;
+			DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
+			DWORD64 m_visual = mem->Read<DWORD64>(m_objptr + 0x8);
+			DWORD64 m_pos_comp = mem->Read<DWORD64>(m_visual + 0x38);
+			this->position = mem->Read<Vector3>(m_pos_comp + 0x90);
+		}
+	};
 };
 
 class WeaponData
@@ -669,6 +745,36 @@ public:
 		if (!Str) return nullptr; return Str->str;
 	}
 };
+
+class Lootable
+{
+public:
+	Vector3 GetPosition() {
+		DWORD64 Model = mem->Read<DWORD64>((UINT_PTR)this + oModel);
+		DWORD64 bones = mem->Read<DWORD64>(Model + oBoneTransforms);
+	}
+
+	int getType(std::string name) {
+		name = name.substr(name.find_last_of("/") + 1);
+		name = name.substr(0,name.find("."));
+		int type = -1;
+		if (name.find(std::string("crate_normal")) != std::string::npos) type = LootContainer::boxType::crate_normal;
+		else if (name.find(std::string("crate_normal_2")) != std::string::npos) type = LootContainer::boxType::crate_normal_2;
+		else if (name.find(std::string("crate_elite")) != std::string::npos) type = LootContainer::boxType::crate_elite;
+		else if (name.find(std::string("bradley_crate")) != std::string::npos) type = LootContainer::boxType::bradley_crate;
+		else if (name.find(std::string("heli_crate")) != std::string::npos) type = LootContainer::boxType::heli_crate;
+		else if (name.find(std::string("crate_underwater_advanced")) != std::string::npos) type = LootContainer::boxType::crate_underwater_advanced;
+		
+		return type;
+	}
+
+
+	//getPos
+	//getType
+	//getContents -- maybe
+
+};
+
 
 class LPlayerBase
 {

@@ -432,12 +432,11 @@ bool Radar::createPlayerBlips(BasePlayer* player, int type) {
 	}
 }
 
-/*
-void Radar::createLootBlips(EFTLoot loot) {
-	Blip blip = Blip(loot.name, loot.origin.x, loot.origin.z, loot.origin.y, "YELLOW", 10, 0);
+void Radar::createLootBlips(LootContainer::container loot) {
+	Blip blip = Blip(loot.name, loot.position.x, loot.position.z, loot.position.y, "YELLOW", 10, 0);
 	blipList.emplace_back(blip);
 }
-*/
+
 void Radar::setRange(int range) {
 	this->range = range;
 }
@@ -489,7 +488,7 @@ void Radar::drawWindowTesting() {
 	//renderBlip(blip1);
 	//renderBlipName(blip1);
 
-	//this->text = CreateGLText();
+	this->text = CreateGLText();
 
 	setColor("WHITE");
 	glBegin(GL_LINES);
@@ -509,8 +508,8 @@ void Radar::drawWindowTesting() {
 		renderBlipName(this->blipList[i], true);
 	}
 
-	//gltDeleteText(this->text);
-	//gltTerminate();
+	gltDeleteText(this->text);
+	gltTerminate();
 	//gltBeginDraw();
 	//drawText(-.5, 0, 1.0, "Poggers");
 	//drawText(100, 100, 1.0, "Poggers2");

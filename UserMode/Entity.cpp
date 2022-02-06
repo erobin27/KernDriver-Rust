@@ -2,6 +2,7 @@
 #include "GameSDK.h"
 #include "AimFunc.h"
 #include <codecvt>
+#include <array>
 
 bool mfound = false;
 LPlayerBase LocalPlayer;
@@ -41,6 +42,13 @@ std::wstring readWCharString(DWORD64 address, int length) {
 	}
 
 	return str;
+}
+
+std::string readStringFromMem(uint64_t stringAddr) {
+	std::array<char, 64> name_buffer;
+	name_buffer = mem->Read<std::array<char, 64>>(stringAddr);
+	name_buffer[63] = '\0';
+	return name_buffer.data();
 }
 
 void basePlayerLoop() {
@@ -123,7 +131,7 @@ void radarLoop(Radar &myRadar) {
 	*/
 	std::vector<BasePlayer*> Players;
 	DWORD64 BaseNetworkable;
-	BaseNetworkable = mem->Read<DWORD64>(mem->get_module_base_address("GameAssembly.dll") + g_BN_Steam);
+	BaseNetworkable = mem->Read<DWORD64>(base_address + g_BN_Steam);
 	DWORD64 EntityRealm = mem->Read<DWORD64>(BaseNetworkable + oEntityRealm);
 	DWORD64 ClientEntities = mem->Read<DWORD64>(EntityRealm);
 	DWORD64 ClientEntities_list = mem->Read<DWORD64>(ClientEntities + oClientEntitiesList);
@@ -145,8 +153,7 @@ void radarLoop(Radar &myRadar) {
 		if (Entity <= 100000) continue;
 		DWORD64 Obj = mem->Read<DWORD64>(Entity + 0x0);
 		DWORD64 ObjName = mem->Read<DWORD64>(Obj + 0x10);
-		std::string ClassName = readCharString(ObjName, 16);
-		//std::cout << ClassName << std::endl;
+		std::string ClassName = readCharString(ObjName, 15);
 		//std::cout << LocalPos.Length() << std::endl;
 
 		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
@@ -195,6 +202,7 @@ void radarLoop(Radar &myRadar) {
 					LocalPos = LocalPlayer->GetPosition();
 					LocalTeam = LocalPlayer->GetTeam();
 					LocalLookingDegree = LocalPlayer->GetLookDegree();
+					//add if in range
 					myRadar.createPlayerBlips(Player, Radar::blipType::localPlayer);
 				}
 			}//end local player
@@ -205,8 +213,27 @@ void radarLoop(Radar &myRadar) {
 				myRadar.createPlayerBlips(Player, Radar::blipType::enemy);
 			}
 		}//end BasePlayer if statement
-	}//end entity forloop
+		else if (ClassName.find(std::string("LootContainer")) != std::string::npos) {			//if the entity is a player
+			LootContainer::container lootBox;
+			lootBox.entity = Entity;
+			lootBox.objClass = ObjectClass;
 
+			//Get object name
+			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+			if (LocalObjectClass <= 100000) return;
+			DWORD64 LocalObjectName = mem->Read<DWORD64>(LocalObjectClass + 0x60);
+			std::string name = readStringFromMem(LocalObjectName);
+			name = name.substr(name.find_last_of("/") + 1);
+			name = name.substr(0, name.find("."));
+			lootBox.name = name;
+			lootBox.setType();
+			
+			//get object position
+			lootBox.setPosition();
+
+			if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
+		}
+	}//end entity forloop
 	/*
 	std::vector<Vector3> DrawRadarPosition;
 
