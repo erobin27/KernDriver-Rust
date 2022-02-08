@@ -21,6 +21,19 @@ GLFWwindow* CreateGLWindow(int windowX, int windowY);
 GLTtext* CreateGLText();
 void initWindow(GLFWwindow* window);
 
+class RadarMenu {
+public:
+	int x;
+	int y;
+	RadarMenu() {
+	}
+
+	RadarMenu(int x, int y) {
+		this->x = x;
+		this->y = y;
+	}
+};
+
 class Blip {
 public:
 	std::string name;
@@ -55,14 +68,16 @@ class Radar {
 	int windowY;
 	int range;
 	Blip centerBlip;
+	RadarMenu menu;
 	std::vector<Blip> blipList;
 	//vector<int> RenderList;
 
 public:
 	Radar(int sizeX, int sizeY) {
+		this->menu = RadarMenu(sizeX, sizeY / 3);
 		this->windowX = sizeX;
 		this->windowY = sizeY;
-		this->window = CreateGLWindow(sizeX, sizeY);
+		this->window = CreateGLWindow(sizeX, sizeY + this->menu.y);
 		this->range = 200;
 	}
 
@@ -73,22 +88,35 @@ public:
 		ai = 3
 	};
 
+	//GL functions
 	GLFWwindow* getWindow();
-	void setRange(int range);
+	void closeWindow();
+
+	//Math functions
+	float RadarOrMenu(float y, bool onMenu);
 	void setColor(std::string color);
-	void drawFilledCircle(GLfloat x, GLfloat y, float size, std::string color);
-	void drawHollowCircle(GLfloat x, GLfloat y, float size, std::string color);
+	void setRange(int range);
+
+	//Drawing Functions
+	void drawFilledCircle(GLfloat x, GLfloat y, float size, std::string color, bool onMenu = false);
+	void drawHollowCircle(GLfloat x, GLfloat y, float size, std::string color, bool onMenu = false);
 	void drawLineByAngle(GLfloat x, GLfloat y, float angle, float size, std::string color);
-	void drawText(GLfloat x, GLfloat y, float size, std::string type);
-	void clearBlips();
-	void renderBlip(Blip blip, bool rotate = true);
-	bool renderBlipName(Blip blip, bool rotate = true);
-	void drawBlank();
+	void drawText(GLfloat x, GLfloat y, float size, std::string type, bool onMenu = false);
+	void drawRect(GLfloat x, GLfloat y, GLfloat length, GLfloat height, std::string color, float percent = 1.0, std::string alignment = "LEFT", bool onMenu = false);
+	void drawHealthBar(GLfloat x, GLfloat y, float size, float percent, float yOffset = 10);
+	void drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bool down = false, bool onMenu = false);
+
+
+	//Blip Functions
 	bool createPlayerBlips(BasePlayer* player, int type);
 	void createLootBlips(LootContainer::container loot);
-	void drawRect(GLfloat x, GLfloat y, GLfloat length, GLfloat height, std::string color, float percent = 1.0, std::string alignment = "LEFT");
-	void drawHealthBar(GLfloat x, GLfloat y, float size, float percent, float yOffset = 10);
-	void drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bool down = false);
+	void renderBlip(Blip blip, bool rotate = true);
+	bool renderBlipName(Blip blip, bool rotate = true);
+	void clearBlips();
+
+	//Window Display Functions
+	void drawBlank();
 	void drawWindowTesting();
-	void closeWindow();
+	void drawSonar();
+
 };

@@ -109,6 +109,16 @@ void initWindow(GLFWwindow* window) {
 	glfwPollEvents();
 }
 
+float pixelToPoint(float pixelPoint, int windowSize) {
+	int halfWindow = windowSize / 2;
+	return (pixelPoint - halfWindow) / halfWindow;
+}
+
+float pointToPixel(float point, int windowSize) {
+	int halfWindow = windowSize / 2;
+	return (point * halfWindow + halfWindow);
+}
+
 int DrawRadar() {
 	GLFWwindow* window;
 
@@ -173,13 +183,38 @@ void Radar::setColor(std::string color) {
 	}
 }
 
-void Radar::drawFilledCircle(GLfloat x, GLfloat y, float size, std::string color) {
-	setColor(color);
+float Radar::RadarOrMenu(float y, bool onMenu) {
+	//CURRENTLY RENDERS THE MENU AT THE BOTTOM
 
+	//turn the point into a pixel
+	//add the menu height
+	//convert back to point
+
+	if (onMenu) {
+		y = pointToPixel(y, this->menu.y);
+		return pixelToPoint(
+			y,
+			this->windowY + this->menu.y
+		);
+	}
+	else {
+		y = pointToPixel(y, this->windowY);
+		return pixelToPoint(
+			(y + this->menu.y),
+			this->windowY + this->menu.y
+		);
+	}
+}
+
+void Radar::drawFilledCircle(GLfloat x, GLfloat y, float size, std::string color, bool onMenu) {
+	setColor(color);
 	int i;
 	int triangleAmount = 20; //# of triangles used to draw circle
+
+	y = RadarOrMenu(y, onMenu);	//render on radar
+
 	GLfloat radiusX = (size / this->windowX);
-	GLfloat radiusY = (size / this->windowY);
+	GLfloat radiusY = (size / (this->windowY + this->menu.y));
 
 	GLfloat twicePi = 2.0f * PI;
 	glBegin(GL_TRIANGLE_FAN);
@@ -193,15 +228,17 @@ void Radar::drawFilledCircle(GLfloat x, GLfloat y, float size, std::string color
 	glEnd();
 }
 
-void Radar::drawHollowCircle(GLfloat x, GLfloat y, float size, std::string color) {
+void Radar::drawHollowCircle(GLfloat x, GLfloat y, float size, std::string color, bool onMenu) {
 	setColor(color);
 	int i;
 	int lineAmount = 100; //# of triangles used to draw circle
 
+	y = RadarOrMenu(y, onMenu);	//render on radar
+
 	//GLfloat radius = 0.8f; //radius
 	GLfloat twicePi = 2.0f * PI;
 	GLfloat radiusX = (size / this->windowX);
-	GLfloat radiusY = (size / this->windowY);
+	GLfloat radiusY = (size / (this->windowY + this->menu.y));
 
 	glBegin(GL_LINE_LOOP);
 	for (i = 0; i <= lineAmount; i++) {
@@ -213,8 +250,9 @@ void Radar::drawHollowCircle(GLfloat x, GLfloat y, float size, std::string color
 	glEnd();
 }
 
-void Radar::drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bool down) {
+void Radar::drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bool down, bool onMenu) {
 	setColor(color);
+	y = RadarOrMenu(y, onMenu);	//render on radar
 
 	//1: down half y, right half x
 	//2: down half y, left half x
@@ -222,7 +260,7 @@ void Radar::drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bo
 	//x + (size / this->windowX)
 	size = size * 2;
 	float xDistance = (size / this->windowX);
-	float yDistance = (size / this->windowY);
+	float yDistance = (size / (this->windowY + this->menu.y));
 	glBegin(GL_TRIANGLES);
 	if (!down) {
 		glVertex3f(x - (xDistance / 2), y - (yDistance / 2), 0);
@@ -237,7 +275,7 @@ void Radar::drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bo
 	glEnd();
 }
 
-void Radar::drawText(GLfloat x, GLfloat y, float size, std::string type) {
+void Radar::drawText(GLfloat x, GLfloat y, float size, std::string type, bool onMenu) {
 	gltSetText(this->text, type.c_str());
 	gltBeginDraw();
 
@@ -261,22 +299,14 @@ Vector2 rotateAboutZero(Vector2 point, float angle) {
 	return newPoint;
 }
 
-float pixelToPoint(float pixelPoint, int windowSize) {
-	int halfWindow = windowSize / 2;
-	return (pixelPoint - halfWindow) / halfWindow;
-}
-
-float pointToPixel(float point, int windowSize) {
-	int halfWindow = windowSize / 2;
-	return (point * halfWindow + halfWindow);
-}
-
 float pixelDistToPoint(float pixelDist, int windowSize) {
 	return pixelDist / windowSize;
 }
 
-void Radar::drawRect(GLfloat x, GLfloat y, float length, float height, std::string color, float percent, std::string alignment) {
+void Radar::drawRect(GLfloat x, GLfloat y, float length, float height, std::string color, float percent, std::string alignment, bool onMenu) {
 	setColor(color);
+	y = RadarOrMenu(y, onMenu);	//render on radar
+
 	float left = x - (length / 2.0);
 	float right = left + length * percent;
 	float top = y + (height / 2.0);
@@ -457,8 +487,8 @@ void Radar::drawBlank() {
 	glBegin(GL_LINES);
 	glVertex2f(-1.0f, 0.0f);
 	glVertex2f(1.0f, 0.0f);
-	glVertex2f(0.0f, -1.0f);
-	glVertex2f(0.0f, 1.0f);
+	glVertex2f(0.0f, RadarOrMenu(-1.0f, false));
+	glVertex2f(0.0f, RadarOrMenu(1.0f, false));
 	glEnd();
 
 	/* Swap front and back buffers */
@@ -471,7 +501,6 @@ void Radar::drawBlank() {
 void Radar::drawWindowTesting() {
 	if (glfwWindowShouldClose(this->window)) glfwTerminate();
 	
-	std::cout << this->blipList.size() << std::endl;
 	/* Render here */
 	//glClearColor(1.0, 1.0, 1.0, 1.0); //background color
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -492,14 +521,21 @@ void Radar::drawWindowTesting() {
 
 	setColor("WHITE");
 	glBegin(GL_LINES);
-	glVertex2f(-1.0f, 0.0f);
-	glVertex2f(1.0f, 0.0f);
-	glVertex2f(0.0f, -1.0f);
-	glVertex2f(0.0f, 1.0f);
+	glVertex2f(-1.0f, RadarOrMenu(0.0f, false));
+	glVertex2f(1.0f, RadarOrMenu(0.0f, false));
+	glVertex2f(0.0f, RadarOrMenu(-1.0f, false));
+	glVertex2f(0.0f, RadarOrMenu(1.0f, false));
 	glEnd();
 
 	//drawHollowCircle(0,0,pointToPixel(.3 * .5, this->windowX),"WHITE");
 	//drawHollowCircle(0, 0, pointToPixel(1.0 * .5, this->windowX), "WHITE");
+
+	Blip blip1 = Blip("BLM-or-DIE",0.0 , 0.0 , 0.0 , "RED", 10.0,90.0 ,0.0);
+	Blip blip2 = Blip("poggie", 100.0, 40.0, -20.0, "BLUE", 10.0, 90.0);
+	this->centerBlip = blip1;
+
+	this->blipList.emplace_back(blip1);
+	this->blipList.emplace_back(blip2);
 
 	for (int i = 0; i < this->blipList.size(); i++) {
 		renderBlip(this->blipList[i], true);
@@ -530,6 +566,39 @@ void Radar::drawWindowTesting() {
 		}
 	}
 	*/
+
+	/* Swap front and back buffers */
+	glfwSwapBuffers(this->window);
+
+	/* Poll for and process events */
+	glfwPollEvents();
+}
+
+void Radar::drawSonar() {
+	if (glfwWindowShouldClose(this->window)) glfwTerminate();
+	/* Render here */
+	glClear(GL_COLOR_BUFFER_BIT);
+	this->text = CreateGLText();
+
+	//draw crosshair line
+	setColor("WHITE");
+	glBegin(GL_LINES);
+	glVertex2f(-1.0f, 0.0f);
+	glVertex2f(1.0f, 0.0f);
+	glVertex2f(0.0f, -1.0f);
+	glVertex2f(0.0f, 1.0f);
+	glEnd();
+
+	//draw blips
+	for (int i = 0; i < this->blipList.size(); i++) {
+		renderBlip(this->blipList[i], true);
+	}
+	for (int i = 0; i < this->blipList.size(); i++) {
+		renderBlipName(this->blipList[i], true);
+	}
+
+	gltDeleteText(this->text);
+	gltTerminate();
 
 	/* Swap front and back buffers */
 	glfwSwapBuffers(this->window);

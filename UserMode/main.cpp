@@ -228,7 +228,7 @@ void gameLoop() {
 				system(CLEAR);
 				myRadar.setRange(radarDistance);
 				radarLoop(myRadar);
-				myRadar.drawWindowTesting();
+				myRadar.drawSonar();
 				Sleep(100);
 			}
 			system(WHITE);
@@ -256,6 +256,13 @@ int main()
 	if (!base_address)
 	{
 		printf(skCrypt("Could Not Find Game..."));
+
+		Radar myRadar = Radar(1000, 1000);
+		while (true) {
+			myRadar.drawWindowTesting();
+			myRadar.clearBlips();
+		}
+
 		Sleep(5000);
 	}
 	else
