@@ -5,6 +5,26 @@
 #include <map>
 using namespace std;
 
+
+
+
+/*
+*
+*	MENU CLASS
+*
+*/
+void RadarMenu::initMenuOptions() {
+
+}
+
+
+/*
+* 
+*	RADAR CLASS
+* 
+*/
+
+//GL FUNCTIONS
 GLFWwindow* CreateGLWindow(int windowX, int windowY) {
 	GLFWwindow* window;
 
@@ -49,48 +69,6 @@ GLFWwindow* Radar::getWindow() {
 	return this->window;
 }
 
-void drawWindow(GLFWwindow* window, std::vector<Vector3> PointsToRender) {
-	if (glfwWindowShouldClose(window)) glfwTerminate();
-
-	//while (!glfwWindowShouldClose(window))
-	{
-		/* Render here */
-		//glClearColor(1.0, 1.0, 1.0, 1.0); //background color
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glBegin(GL_LINES);
-		glVertex2f(-1.0f, 0.0f);
-		glVertex2f(1.0f, 0.0f);
-		glVertex2f(0.0f, -1.0f);
-		glVertex2f(0.0f, 1.0f);
-		glEnd();
-
-		glPointSize(10);
-		if (PointsToRender.size() > 0) {
-			for (int i = 0; i < PointsToRender.size(); i++) {
-				if (PointsToRender[i].z == 1.0) {		//ENEMY
-					glColor3f(1.0, 0.0, 0.0);	//red
-				}
-				else {
-					glColor3f(0.0, 0.0, 1.0);	//blue
-				}
-
-				glBegin(GL_POINTS);
-				glVertex2f(PointsToRender[i].x, PointsToRender[i].y);
-				glEnd();
-
-				glColor3f(1.0, 1.0, 1.0);
-			}
-		}
-
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
-		/* Poll for and process events */
-		glfwPollEvents();
-	}
-}
-
 void initWindow(GLFWwindow* window) {
 	if (glfwWindowShouldClose(window)) glfwTerminate();
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -109,6 +87,8 @@ void initWindow(GLFWwindow* window) {
 	glfwPollEvents();
 }
 
+
+//MATH FUNCTIONS
 float pixelToPoint(float pixelPoint, int windowSize) {
 	int halfWindow = windowSize / 2;
 	return (pixelPoint - halfWindow) / halfWindow;
@@ -119,41 +99,29 @@ float pointToPixel(float point, int windowSize) {
 	return (point * halfWindow + halfWindow);
 }
 
-int DrawRadar() {
-	GLFWwindow* window;
-
-	/* Initialize the library */
-	if (!glfwInit())
-		return -1;
-
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(800, 800, "Sonar", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		return -1;
-	}
-
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
-
-	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window))
-	{
-		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
-		/* Poll for and process events */
-		glfwPollEvents();
-	}
-
-	glfwTerminate();
-	return 0;
+float lineDistance(Vector2 p1, Vector2 p2) {
+	return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
 }
 
+float  shiftAngle(float angle, float shift) {
+	angle = angle + shift;
+	if (angle < 0) angle = angle + 360;
+	if (angle > 360) angle = angle - 360.0;
+	return angle;
+}
+
+float pixelDistToPoint(float pixelDist, int windowSize) {
+	return pixelDist / windowSize;
+}
+
+Vector2 rotateAboutZero(Vector2 point, float angle) {
+	Vector2 newPoint;
+	newPoint.x = cos(angle * 3.141592653 / 180) * point.x - sin(angle * 3.141592653 / 180) * point.y;
+	newPoint.y = cos(angle * 3.141592653 / 180) * point.y + sin(angle * 3.141592653 / 180) * point.x;
+	return newPoint;
+}
+
+//RADAR HELPER FUNCTIONS
 void Radar::setColor(std::string color) {
 	std::transform(color.begin(), color.end(), color.begin(), ::toupper);
 
@@ -206,6 +174,11 @@ float Radar::RadarOrMenu(float y, bool onMenu) {
 	}
 }
 
+void Radar::setRange(int range) {
+	this->range = range;
+}
+
+//DRAWING FUNCTIONS
 void Radar::drawFilledCircle(GLfloat x, GLfloat y, float size, std::string color, bool onMenu) {
 	setColor(color);
 	int i;
@@ -288,21 +261,6 @@ void Radar::drawText(GLfloat x, GLfloat y, float size, std::string type, bool on
 
 }
 
-float lineDistance(Vector2 p1, Vector2 p2) {
-	return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
-}
-
-Vector2 rotateAboutZero(Vector2 point, float angle) {
-	Vector2 newPoint;
-	newPoint.x = cos(angle * 3.141592653 / 180) * point.x - sin(angle * 3.141592653 / 180) * point.y;
-	newPoint.y = cos(angle * 3.141592653 / 180) * point.y + sin(angle * 3.141592653 / 180) * point.x;
-	return newPoint;
-}
-
-float pixelDistToPoint(float pixelDist, int windowSize) {
-	return pixelDist / windowSize;
-}
-
 void Radar::drawRect(GLfloat x, GLfloat y, float length, float height, std::string color, float percent, std::string alignment, bool onMenu) {
 	setColor(color);
 	y = RadarOrMenu(y, onMenu);	//render on radar
@@ -316,6 +274,19 @@ void Radar::drawRect(GLfloat x, GLfloat y, float length, float height, std::stri
 	glVertex3f(left, bottom, 0);
 	glVertex3f(right, bottom, 0);
 	glVertex3f(right, top, 0);
+	glEnd();
+}
+
+void Radar::drawLineByAngle(GLfloat x, GLfloat y, float angle, float size, std::string color) {
+	size = pixelDistToPoint(size, this->windowX);
+	angle = shiftAngle(angle, 90.0);
+	GLfloat x2 = size * cos(angle * (3.141592653 / 180.0)) + x;
+	GLfloat y2 = size * sin(angle * (3.141592653 / 180.0)) + y;
+
+	setColor(color);
+	glBegin(GL_LINES);
+	glVertex2f(x, y);
+	glVertex2f(-x2, y2);
 	glEnd();
 }
 
@@ -340,26 +311,8 @@ void Radar::drawHealthBar(GLfloat x, GLfloat y, float size, float percent, float
 	drawRect(x, y - healthBarYSpacing, length, height, color, percent);
 }
 
-float  shiftAngle(float angle, float shift) {
-	angle = angle + shift;
-	if (angle < 0) angle = angle + 360;
-	if (angle > 360) angle = angle - 360.0;
-	return angle;
-}
 
-void Radar::drawLineByAngle(GLfloat x, GLfloat y, float angle, float size, std::string color) {
-	size = pixelDistToPoint(size, this->windowX);
-	angle = shiftAngle(angle, 90.0);
-	GLfloat x2 = size * cos(angle * (3.141592653 / 180.0)) + x;
-	GLfloat y2 = size * sin(angle * (3.141592653 / 180.0)) + y;
-
-	setColor(color);
-	glBegin(GL_LINES);
-	glVertex2f(x, y);
-	glVertex2f(-x2, y2);
-	glEnd();
-}
-
+//BLIP FUNCTIONS
 void Radar::renderBlip(Blip blip, bool rotate) { //middle.y needs to be z val
 	//std::cout << "RENDER X: " << (blip.x - this->middle.x) / this->range << " Y: " << (blip.y - this->middle.y) / this->range << std::endl;
 	Vector2 renderPoint;
@@ -467,14 +420,12 @@ void Radar::createLootBlips(LootContainer::container loot) {
 	blipList.emplace_back(blip);
 }
 
-void Radar::setRange(int range) {
-	this->range = range;
-}
-
 void Radar::clearBlips() {
 	this->blipList.clear();
 }
 
+
+//WINDOW DRAWING FUNCTIONS
 void Radar::drawBlank() {
 	if (glfwWindowShouldClose(this->window)) glfwTerminate();
 

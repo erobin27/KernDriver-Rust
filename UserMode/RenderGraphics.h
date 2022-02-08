@@ -31,7 +31,11 @@ public:
 	RadarMenu(int x, int y) {
 		this->x = x;
 		this->y = y;
+		initMenuOptions();
 	}
+
+	//map of bools
+	void initMenuOptions();
 };
 
 class Blip {
