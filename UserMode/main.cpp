@@ -256,11 +256,24 @@ int main()
 	if (!base_address)
 	{
 		printf(skCrypt("Could Not Find Game..."));
-
 		Radar myRadar = Radar(1000, 1000);
+		int c = 0;
 		while (true) {
 			myRadar.drawWindowTesting();
 			myRadar.clearBlips();
+			if (GetKeyState(VK_DOWN) & 0x8000) {
+				myRadar.menu.nextItem();
+				Sleep(100);
+			}
+			if (GetKeyState(VK_UP) & 0x8000) {
+				myRadar.menu.previousItem();
+				Sleep(100);
+			}
+			if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {
+				myRadar.menu.changeItem();
+				Sleep(100);
+			}
+			Sleep(100);
 		}
 
 		Sleep(5000);
@@ -268,7 +281,8 @@ int main()
 	else
 	{
 		printf(skCrypt("Game Found...\n"));
-			
+		
+		LootContainer::boxType::hiddenhackablecrate;
 		initializeSettings();
 		gameLoop();
 		breakVal = true;

@@ -25,6 +25,11 @@ class RadarMenu {
 public:
 	int x;
 	int y;
+	std::map<std::string, bool> menuItems;
+	std::vector<std::string> keys;
+	std::vector<int> DrawListVec;
+	int selectedItem;
+
 	RadarMenu() {
 	}
 
@@ -32,7 +37,31 @@ public:
 		this->x = x;
 		this->y = y;
 		initMenuOptions();
+		this->selectedItem = 0;
 	}
+
+	void nextItem() {
+		if (this->selectedItem + 1 >= menuItems.size()) {
+			this->selectedItem = 0;
+		}
+		else {
+			this->selectedItem++;
+		}
+	}
+
+	void previousItem() {
+		if (this->selectedItem - 1 < 0) {
+			this->selectedItem = menuItems.size()-1;
+		}
+		else {
+			this->selectedItem--;
+		}
+	}
+
+	void changeItem() {
+		menuItems[keys[this->selectedItem]] = !menuItems[keys[this->selectedItem]];
+	}
+
 
 	//map of bools
 	void initMenuOptions();
@@ -72,11 +101,12 @@ class Radar {
 	int windowY;
 	int range;
 	Blip centerBlip;
-	RadarMenu menu;
+	//RadarMenu menu;
 	std::vector<Blip> blipList;
 	//vector<int> RenderList;
 
 public:
+	RadarMenu menu;
 	Radar(int sizeX, int sizeY) {
 		this->menu = RadarMenu(sizeX, sizeY / 3);
 		this->windowX = sizeX;
@@ -89,8 +119,12 @@ public:
 		localPlayer = 0,
 		teammate = 1,
 		enemy = 2,
-		ai = 3
+		ai = 3,
+		sleeper = 4
 	};
+
+	//menu funcs
+	void renderMenu();
 
 	//GL functions
 	GLFWwindow* getWindow();
@@ -106,6 +140,7 @@ public:
 	void drawHollowCircle(GLfloat x, GLfloat y, float size, std::string color, bool onMenu = false);
 	void drawLineByAngle(GLfloat x, GLfloat y, float angle, float size, std::string color);
 	void drawText(GLfloat x, GLfloat y, float size, std::string type, bool onMenu = false);
+	void drawColoredText(GLfloat x, GLfloat y, float size, std::string type, std::string color, bool onMenu = false);
 	void drawRect(GLfloat x, GLfloat y, GLfloat length, GLfloat height, std::string color, float percent = 1.0, std::string alignment = "LEFT", bool onMenu = false);
 	void drawHealthBar(GLfloat x, GLfloat y, float size, float percent, float yOffset = 10);
 	void drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bool down = false, bool onMenu = false);

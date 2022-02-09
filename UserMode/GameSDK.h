@@ -275,6 +275,8 @@ enum BoneList : int
 };
 
 namespace LootContainer {
+	extern std::map<std::string, int> containerTypeMap;
+	
 	enum boxType {
 		hiddenhackablecrate = 0,
 		crate_basic = 1,
@@ -318,15 +320,10 @@ namespace LootContainer {
 		Vector3 position;
 
 		void setType() {
-			if (this->name.find(std::string("crate_normal")) != std::string::npos) this->type = boxType::crate_normal;
-			else if (this->name.find(std::string("crate_normal_2")) != std::string::npos) this->type = boxType::crate_normal_2;
-			else if (this->name.find(std::string("crate_elite")) != std::string::npos) this->type = boxType::crate_elite;
-			else if (this->name.find(std::string("bradley_crate")) != std::string::npos) this->type = boxType::bradley_crate;
-			else if (this->name.find(std::string("heli_crate")) != std::string::npos) this->type = boxType::heli_crate;
-			else if (this->name.find(std::string("crate_underwater_advanced")) != std::string::npos) this->type = boxType::crate_underwater_advanced;
+			if (containerTypeMap.find(this->name) == containerTypeMap.end()) this->type = -1;	//if not in map
 			else
 			{
-				this->type = -1;
+				this->type = containerTypeMap[this->name];
 			}
 		}
 
@@ -340,8 +337,24 @@ namespace LootContainer {
 			DWORD64 m_pos_comp = mem->Read<DWORD64>(m_visual + 0x38);
 			this->position = mem->Read<Vector3>(m_pos_comp + 0x90);
 		}
+
+		/*
+		void setPosition() {
+			DWORD64 Object = mem->Read<DWORD64>(this->entity + 0x10);
+			if (Object <= 100000) return;
+			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+			if (LocalObjectClass <= 100000) return;
+			DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
+			DWORD64 m_visual = mem->Read<DWORD64>(m_objptr + 0x8);
+			DWORD64 m_pos_comp = mem->Read<DWORD64>(m_visual + 0x38);
+			this->position = mem->Read<Vector3>(m_pos_comp + 0x90);
+		}
+		*/
 	};
+
 };
+//extern std::map<std::string, int> containerTypeMap;
+
 
 class WeaponData
 {
@@ -757,15 +770,10 @@ public:
 	int getType(std::string name) {
 		name = name.substr(name.find_last_of("/") + 1);
 		name = name.substr(0,name.find("."));
-		int type = -1;
-		if (name.find(std::string("crate_normal")) != std::string::npos) type = LootContainer::boxType::crate_normal;
-		else if (name.find(std::string("crate_normal_2")) != std::string::npos) type = LootContainer::boxType::crate_normal_2;
-		else if (name.find(std::string("crate_elite")) != std::string::npos) type = LootContainer::boxType::crate_elite;
-		else if (name.find(std::string("bradley_crate")) != std::string::npos) type = LootContainer::boxType::bradley_crate;
-		else if (name.find(std::string("heli_crate")) != std::string::npos) type = LootContainer::boxType::heli_crate;
-		else if (name.find(std::string("crate_underwater_advanced")) != std::string::npos) type = LootContainer::boxType::crate_underwater_advanced;
+		return -1;
+		//if (LootContainer::containerTypeMap.find(name) == LootContainer::containerTypeMap.end()) return -1;	//if not in map
 		
-		return type;
+		//return LootContainer::containerTypeMap[name];
 	}
 
 

@@ -6,6 +6,85 @@
 
 bool mfound = false;
 LPlayerBase LocalPlayer;
+std::map<std::string, int> LootContainer::containerTypeMap = {
+	{"crate_basic", LootContainer::boxType::crate_basic},
+	{"crate_elite", LootContainer::boxType::crate_elite},
+	{"crate_mine", LootContainer::boxType::crate_mine},
+	{"crate_normal", LootContainer::boxType::crate_normal},
+	{"crate_normal_2", LootContainer::boxType::crate_normal_2},
+	{"crate_normal_2_food", LootContainer::boxType::crate_normal_2_food},
+	{"crate_normal_2_medical", LootContainer::boxType::crate_normal_2_medical},
+	{"crate_tools", LootContainer::boxType::crate_tools},
+	{"crate_underwater_advanced", LootContainer::boxType::crate_underwater_advanced},
+	{"crate_underwater_basic", LootContainer::boxType::crate_underwater_basic},
+	{"crate_ammunition", LootContainer::boxType::crate_ammunition},
+	{"crate_food_1", LootContainer::boxType::crate_food_1},
+	{"crate_food_2", LootContainer::boxType::crate_food_2},
+	{"crate_fuel", LootContainer::boxType::crate_fuel},
+	{"crate_medical", LootContainer::boxType::crate_medical},
+	{"codelockedhackablecrate", LootContainer::boxType::codelockedhackablecrate},
+	{"codelockedhackablecrate_oilrig", LootContainer::boxType::codelockedhackablecrate_oilrig},
+	{"bradley_crate", LootContainer::boxType::bradley_crate},
+	{"heli_crate", LootContainer::boxType::heli_crate},
+	{"cratemarker", LootContainer::boxType::cratemarker},
+	{"survey_crater", LootContainer::boxType::survey_crater},
+	{"survey_crater_oil", LootContainer::boxType::survey_crater_oil},
+};
+
+std::string boxTypeToString(int type) {
+	switch (type) {
+	case 0:
+		return "hiddenhackablecrate";
+	case 1:
+		return "crate_basic";
+	case 2:
+		return "crate_elite";
+	case 3:
+		return "crate_mine";
+	case 4:
+		return "crate_normal";
+	case 5:
+		return "crate_normal_2";
+	case 6:
+		return "crate_normal_2_food";
+	case 7:
+		return "crate_normal_2_medical";
+	case 8:
+		return "crate_tools";
+	case 9:
+		return "crate_underwater_advanced";
+	case 10:
+		return "crate_underwater_basic";
+	case 11:
+		return "crate_ammunition";
+	case 12:
+		return "crate_food_1";
+	case 13:
+		return "crate_food_2";
+	case 14:
+		return "crate_fuel";
+	case 15:
+		return "crate_medical";
+	case 16:
+		return "codelockedhackablecrate";
+	case 17:
+		return "codelockedhackablecrate_oilrig";
+	case 18:
+		return "bradley_crate";
+	case 19:
+		return "heli_crate";
+	case 20:
+		return "cratemarker";
+	case 21:
+		return "survey_crater";
+	case 22:
+		return "survey_crater_oil";
+	default:
+		return "unknown";
+	}
+};
+
+
 
 enum RadarColors {
 	Enemy = 1,
@@ -206,11 +285,22 @@ void radarLoop(Radar &myRadar) {
 					myRadar.createPlayerBlips(Player, Radar::blipType::localPlayer);
 				}
 			}//end local player
-			else if (!Player->isSleeping()) {	//if not sleeping
-				if (LocalTeam == Player->GetTeam() && LocalTeam != 0) continue;	//if the players are on your team dont show on radar		<---------- IS TEAMMATE
+			else if (!Player->isSleeping()) {														//if not sleeping
 				if (mem->Read<bool>(ObjectClass + oWasDead)) continue;	//dont show on radar if player is dead
+				if (LocalTeam == Player->GetTeam() && LocalTeam != 0){
+					if (myRadar.menu.menuItems["show team"]) {										//if we choose to render teammates then render
+						if (mem->Read<bool>(ObjectClass + oWasDead)) continue;
+						continue;
+					}
+					else {
+						continue;
+					}
+				}	//if the players are on your team dont show on radar		<---------- IS TEAMMATE
 				//Players.push_back(Player);
 				myRadar.createPlayerBlips(Player, Radar::blipType::enemy);
+			}
+			else if (Player->isSleeping() & myRadar.menu.menuItems["show sleepers"]) {
+				myRadar.createPlayerBlips(Player, Radar::blipType::sleeper);
 			}
 		}//end BasePlayer if statement
 		else if (ClassName.find(std::string("LootContainer")) != std::string::npos) {			//if the entity is a player
@@ -230,8 +320,8 @@ void radarLoop(Radar &myRadar) {
 			
 			//get object position
 			lootBox.setPosition();
-
-			if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
+			if(myRadar.menu.menuItems[lootBox.name])	myRadar.createLootBlips(lootBox);
+			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
 		}
 	}//end entity forloop
 	/*
@@ -311,7 +401,7 @@ void radarLoop(Radar &myRadar) {
 		std::string name = readCharString(ObjectName, 60);
 		std::cout << name << std::endl;
 		*/
-		/*
+/*
 		if (name.find(std::string("Local")) != std::string::npos) {//if local is contained in class name
 			//printf("\nName: %s\n", name.c_str());
 			BasePlayer* Player = (BasePlayer*)mem->Read<DWORD64>(Object + 0x28);

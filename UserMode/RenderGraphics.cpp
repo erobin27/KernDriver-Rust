@@ -14,7 +14,37 @@ using namespace std;
 *
 */
 void RadarMenu::initMenuOptions() {
+	//boxtype options
+	this->menuItems["hiddenhackablecrate"] = false;
+	this->menuItems["crate_basic"] = false;
+	this->menuItems["crate_elite"] = false;
+	this->menuItems["crate_mine"] = false;
+	this->menuItems["crate_normal"] = false;
+	this->menuItems["crate_normal_2"] = false;
+	this->menuItems["crate_normal_2_food"] = false;
+	this->menuItems["crate_normal_2_medical"] = false;
+	this->menuItems["crate_tools"] = false;
+	this->menuItems["crate_underwater_advanced"] = false;
+	this->menuItems["crate_underwater_basic"] = false;
+	this->menuItems["crate_ammunition"] = false;
+	this->menuItems["crate_food_1"] = false;
+	this->menuItems["crate_food_2"] = false;
+	this->menuItems["crate_fuel"] = false;
+	this->menuItems["crate_medical"] = false;
+	this->menuItems["codelockedhackablecrate"] = false;
+	this->menuItems["codelockedhackablecrate_oilrig"] = false;
+	this->menuItems["bradley_crate"] = false;
+	this->menuItems["heli_crate"] = false;
+	this->menuItems["cratemarker"] = false;
+	this->menuItems["survey_crater"] = false;
+	this->menuItems["survey_crater_oil"] = false;
 
+	//other options
+	this->menuItems["show team"] = false;
+	this->menuItems["show sleepers"] = false;
+
+	for (auto const& imap : this->menuItems)
+		this->keys.push_back(imap.first);
 }
 
 
@@ -23,6 +53,47 @@ void RadarMenu::initMenuOptions() {
 *	RADAR CLASS
 * 
 */
+inline const char* const BoolToString(bool b)
+{
+	return b ? "ON" : "OFF";
+}
+
+//MENU RENDER FUNCTIONS
+void Radar::renderMenu() {
+	int bottomSpacing = 50;
+	int offset = 20;
+	int leftspacing = 20;
+
+
+	int x = leftspacing;
+	int y = this->windowY;
+	for (int i = 0; i < this->menu.keys.size(); i++) {
+		if ((this->windowY + this->menu.y) - y < bottomSpacing) {
+			x += this->windowX / 3;
+			y = this->windowY;
+		}
+		
+
+		if (i == this->menu.selectedItem) {
+			drawColoredText(
+				x,
+				y,
+				1.0,
+				menu.keys[i] + ": " + BoolToString(menu.menuItems[menu.keys[i]]),
+				"WHITE"
+			);
+		}
+		else {
+			if (menu.menuItems[menu.keys[i]]) {
+				drawColoredText(x,y,1.0,menu.keys[i],"GREEN");
+			}
+			else {
+				drawColoredText(x, y, 1.0, menu.keys[i], "RED");
+			}
+		}
+		y += offset;
+	}
+}
 
 //GL FUNCTIONS
 GLFWwindow* CreateGLWindow(int windowX, int windowY) {
@@ -248,6 +319,45 @@ void Radar::drawTriangle(GLfloat x, GLfloat y, float size, std::string color, bo
 	glEnd();
 }
 
+//colored
+void Radar::drawColoredText(GLfloat x, GLfloat y, float size, std::string type, std::string color, bool onMenu) {
+	gltSetText(this->text, type.c_str());
+	gltBeginDraw();
+	std::transform(color.begin(), color.end(), color.begin(), ::toupper);
+
+	if (color.compare("RED") == 0) {
+		gltColor(1.0, 0.0, 0.0, 1.0);
+	}
+	else if (color.compare("GREEN") == 0) {
+		gltColor(0.0, 1.0, 0.0, 1.0);
+	}
+	else if (color.compare("BLUE") == 0) {
+		gltColor(0.0, 0.0, 1.0, 1.0);
+	}
+	else if (color.compare("PURPLE") == 0) {
+		gltColor(0.5, 0.0, 1.0, 1.0);
+	}
+	else if (color.compare("YELLOW") == 0) {
+		gltColor(1.0, 1.0, 0.0, 1.0);
+	}
+	else if (color.compare("ORANGE") == 0) {
+		gltColor(1.0, 0.5, 0.0, 1.0);
+	}
+	else if ("WHITE") {
+		gltColor(1.0, 1.0, 1.0, 1.0);
+	}
+	else {
+		gltColor(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+
+	// Draw any amount of text between begin and end
+	gltDrawText2DAligned(this->text, x, y, size, GLT_LEFT, GLT_TOP);
+
+	// Finish drawing text
+	gltEndDraw();
+
+}
+
 void Radar::drawText(GLfloat x, GLfloat y, float size, std::string type, bool onMenu) {
 	gltSetText(this->text, type.c_str());
 	gltBeginDraw();
@@ -401,14 +511,18 @@ bool Radar::createPlayerBlips(BasePlayer* player, int type) {
 		this->blipList.emplace_back(blip);
 		break;
 	case enemy:
-		blip = Blip("Name Here", pPos.x, pPos.z, pPos.y, "RED", 10, player->GetHealth());
+		blip = Blip("enemy", pPos.x, pPos.z, pPos.y, "RED", 10, player->GetHealth());
 		this->blipList.emplace_back(blip);
 		break;
 	case teammate:
-		blip = Blip("Name Here", pPos.x, pPos.z, pPos.y, "GREEN", 5, player->GetHealth());
+		blip = Blip("team", pPos.x, pPos.z, pPos.y, "GREEN", 5, player->GetHealth());
 		this->blipList.emplace_back(blip);
 		break;
 	case ai:
+		break;
+	case sleeper:
+		blip = Blip("sleeper", pPos.x, pPos.z, pPos.y, "GREY", 5, 0);
+		this->blipList.emplace_back(blip);
 		break;
 	default:
 		break;
@@ -476,6 +590,8 @@ void Radar::drawWindowTesting() {
 	glVertex2f(1.0f, RadarOrMenu(0.0f, false));
 	glVertex2f(0.0f, RadarOrMenu(-1.0f, false));
 	glVertex2f(0.0f, RadarOrMenu(1.0f, false));
+	glVertex2f(-1.0f, RadarOrMenu(-1.0f, false));
+	glVertex2f(1.0f, RadarOrMenu(-1.0f, false));
 	glEnd();
 
 	//drawHollowCircle(0,0,pointToPixel(.3 * .5, this->windowX),"WHITE");
@@ -494,6 +610,8 @@ void Radar::drawWindowTesting() {
 	for (int i = 0; i < this->blipList.size(); i++) {
 		renderBlipName(this->blipList[i], true);
 	}
+
+	renderMenu();
 
 	gltDeleteText(this->text);
 	gltTerminate();
