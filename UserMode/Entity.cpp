@@ -93,6 +93,15 @@ enum RadarColors {
 	Sleeper = 4,
 };
 
+bool withinPerimeterRange(Vector3 localPos, Vector3 entityPos, float range) {
+	float x = entityPos.x - localPos.x;
+	float y = entityPos.z - localPos.z;
+
+	if (fabs(x) < range && fabs(y) < range) return true;
+
+	return false;
+}
+
 float toDegrees(float val) {
 	return val / 3.141592653 * 180;
 }
@@ -285,11 +294,12 @@ void radarLoop(Radar &myRadar) {
 					myRadar.createPlayerBlips(Player, Radar::blipType::localPlayer);
 				}
 			}//end local player
-			else if (!Player->isSleeping()) {														//if not sleeping
+			else if (!Player->isSleeping() && withinPerimeterRange(LocalPos, Player->GetPosition(), myRadar.range)) {														//if not sleeping
 				if (mem->Read<bool>(ObjectClass + oWasDead)) continue;	//dont show on radar if player is dead
 				if (LocalTeam == Player->GetTeam() && LocalTeam != 0){
 					if (myRadar.menu.menuItems["show team"]) {										//if we choose to render teammates then render
 						if (mem->Read<bool>(ObjectClass + oWasDead)) continue;
+						myRadar.createPlayerBlips(Player, Radar::blipType::teammate);
 						continue;
 					}
 					else {
@@ -299,7 +309,7 @@ void radarLoop(Radar &myRadar) {
 				//Players.push_back(Player);
 				myRadar.createPlayerBlips(Player, Radar::blipType::enemy);
 			}
-			else if (Player->isSleeping() & myRadar.menu.menuItems["show sleepers"]) {
+			else if (Player->isSleeping() & myRadar.menu.menuItems["show sleepers"] & withinPerimeterRange(LocalPos, Player->GetPosition(), myRadar.range)) {
 				myRadar.createPlayerBlips(Player, Radar::blipType::sleeper);
 			}
 		}//end BasePlayer if statement
@@ -320,7 +330,7 @@ void radarLoop(Radar &myRadar) {
 			
 			//get object position
 			lootBox.setPosition();
-			if(myRadar.menu.menuItems[lootBox.name])	myRadar.createLootBlips(lootBox);
+			if(myRadar.menu.menuItems[lootBox.name] && withinPerimeterRange(LocalPos, lootBox.position, myRadar.range))	myRadar.createLootBlips(lootBox);
 			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
 		}
 	}//end entity forloop

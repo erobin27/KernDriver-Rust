@@ -429,6 +429,11 @@ void Radar::renderBlip(Blip blip, bool rotate) { //middle.y needs to be z val
 	renderPoint.x = (blip.x - this->centerBlip.x) / this->range;
 	renderPoint.y = (blip.y - this->centerBlip.y) / this->range;
 
+	std::cout << renderPoint.x << ", " << renderPoint.y << std::endl;
+
+	if (renderPoint.y > 1.0 || renderPoint.y < -1.0) return;
+	if (renderPoint.x > 1.0 || renderPoint.x < -1.0) return;
+
 	if (rotate) {
 		renderPoint = rotateAboutZero(
 			Vector2{ renderPoint.x, renderPoint.y },
@@ -478,7 +483,6 @@ void Radar::renderBlip(Blip blip, bool rotate) { //middle.y needs to be z val
 }
 
 bool Radar::renderBlipName(Blip blip, bool rotate) {
-	if (blip.name.compare("Marksman") == 0 || blip.name.compare("Assault") == 0) return false;
 
 	Vector2 renderPoint;
 	renderPoint.x = (blip.x - this->centerBlip.x) / this->range;
@@ -652,10 +656,12 @@ void Radar::drawSonar() {
 	//draw crosshair line
 	setColor("WHITE");
 	glBegin(GL_LINES);
-	glVertex2f(-1.0f, 0.0f);
-	glVertex2f(1.0f, 0.0f);
-	glVertex2f(0.0f, -1.0f);
-	glVertex2f(0.0f, 1.0f);
+	glVertex2f(-1.0f, RadarOrMenu(0.0f, false));
+	glVertex2f(1.0f, RadarOrMenu(0.0f, false));
+	glVertex2f(0.0f, RadarOrMenu(-1.0f, false));
+	glVertex2f(0.0f, RadarOrMenu(1.0f, false));
+	glVertex2f(-1.0f, RadarOrMenu(-1.0f, false));
+	glVertex2f(1.0f, RadarOrMenu(-1.0f, false));
 	glEnd();
 
 	//draw blips
@@ -665,6 +671,8 @@ void Radar::drawSonar() {
 	for (int i = 0; i < this->blipList.size(); i++) {
 		renderBlipName(this->blipList[i], true);
 	}
+
+	renderMenu();
 
 	gltDeleteText(this->text);
 	gltTerminate();

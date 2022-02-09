@@ -229,7 +229,19 @@ void gameLoop() {
 				myRadar.setRange(radarDistance);
 				radarLoop(myRadar);
 				myRadar.drawSonar();
-				Sleep(100);
+				if (GetKeyState(VK_DOWN) & 0x8000) {
+					myRadar.menu.nextItem();
+					Sleep(100);
+				}
+				if (GetKeyState(VK_UP) & 0x8000) {
+					myRadar.menu.previousItem();
+					Sleep(100);
+				}
+				if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {
+					myRadar.menu.changeItem();
+					Sleep(100);
+				}
+				Sleep(10);
 			}
 			system(WHITE);
 			printInstructions(menu);
@@ -261,18 +273,6 @@ int main()
 		while (true) {
 			myRadar.drawWindowTesting();
 			myRadar.clearBlips();
-			if (GetKeyState(VK_DOWN) & 0x8000) {
-				myRadar.menu.nextItem();
-				Sleep(100);
-			}
-			if (GetKeyState(VK_UP) & 0x8000) {
-				myRadar.menu.previousItem();
-				Sleep(100);
-			}
-			if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {
-				myRadar.menu.changeItem();
-				Sleep(100);
-			}
 			Sleep(100);
 		}
 

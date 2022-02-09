@@ -99,7 +99,6 @@ class Radar {
 	GLTtext* text;
 	int windowX;
 	int windowY;
-	int range;
 	Blip centerBlip;
 	//RadarMenu menu;
 	std::vector<Blip> blipList;
@@ -107,6 +106,7 @@ class Radar {
 
 public:
 	RadarMenu menu;
+	int range;
 	Radar(int sizeX, int sizeY) {
 		this->menu = RadarMenu(sizeX, sizeY / 3);
 		this->windowX = sizeX;
