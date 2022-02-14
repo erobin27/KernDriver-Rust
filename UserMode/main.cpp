@@ -219,37 +219,38 @@ void gameLoop() {
 
 		//Radar
 		if (GetKeyState(VK_HOME) & 0x8000) {
-			Sleep(1000);
+			system(CLEAR);
+			myRadar.setRange(radarDistance);
+
+			//UNTIL END IS PRESSED 
 			while (!(GetKeyState(VK_END) & 0x8000)) {
 				if (glfwWindowShouldClose(myRadar.getWindow())) {
 					myRadar = Radar(1000, 1000);
 					break;
 				}
-				system(CLEAR);
-				myRadar.setRange(radarDistance);
-				radarLoop(myRadar);
-				myRadar.drawSonar();
-				if (GetKeyState(VK_DOWN) & 0x8000) {
+				if (GetKeyState(VK_DOWN) & 0x8000) {	//if down arrow pressed
 					myRadar.menu.nextItem();
 					Sleep(100);
 				}
-				if (GetKeyState(VK_UP) & 0x8000) {
+				if (GetKeyState(VK_UP) & 0x8000) {		//if up arrow pressed
 					myRadar.menu.previousItem();
 					Sleep(100);
 				}
-				if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {
+				if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {	//if left/right arrow pressed
 					myRadar.menu.changeItem();
 					Sleep(100);
 				}
-				Sleep(10);
+
+				
+				radarLoop(myRadar);		//Detect all entities
+				myRadar.drawSonar();	//Draw entities on the radar
+				Sleep(50);
 			}
+
+			//After END is pressed clear the console and print the main menu
 			system(WHITE);
 			printInstructions(menu);
 		}
-		else {
-			myRadar.drawBlank();
-		}
-
 	}
 }
 
@@ -282,7 +283,6 @@ int main()
 	{
 		printf(skCrypt("Game Found...\n"));
 		
-		LootContainer::boxType::hiddenhackablecrate;
 		initializeSettings();
 		gameLoop();
 		breakVal = true;

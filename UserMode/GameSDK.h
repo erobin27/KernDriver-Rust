@@ -7,8 +7,8 @@
 //game structs
 //[Base + g_BN_Steam] + oEntityRealm] + oClientEntitiesList] + oClientEntitiesValues]
 //client entities = read()
-#define g_BN 0x3149A10			//0x32A4668
-#define g_BN_Steam 0x3149A10
+#define g_BN 0x314CC88			//0x32A4668
+#define g_BN_Steam 0x314CC88
 #define GOM 0x17C1F18			//doesn't change (usually)
 
 
@@ -274,9 +274,51 @@ enum BoneList : int
 	BreastCensor_LOD2 = 84
 };
 
-namespace LootContainer {
-	extern std::map<std::string, int> containerTypeMap;
-	
+
+class EntityClass {
+public:
+	DWORD64 Entity;
+	DWORD64 ObjectClass;
+	std::string name;
+	int EntityType;
+	Vector3 position;
+
+	EntityClass(DWORD64 EntityAddr, DWORD64 ObjectClassAddr, std::string name, int type) {
+		Entity = EntityAddr;
+		ObjectClass = ObjectClassAddr;
+		this->name = name;
+		EntityType = type;
+		setPosition();
+	}
+
+	enum EntityTypes {
+		Lootbox = 0,
+		Ore = 1,
+	};
+
+	void setPosition() {
+		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
+		if (Object <= 100000) return;
+		DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+		if (LocalObjectClass <= 100000) return;
+		DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
+		DWORD64 m_visual = mem->Read<DWORD64>(m_objptr + 0x8);
+		DWORD64 m_pos_comp = mem->Read<DWORD64>(m_visual + 0x38);
+		position = mem->Read<Vector3>(m_pos_comp + 0x90);
+	}
+
+	bool isActive() {
+		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
+		if (Object <= 100000) return;
+		DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+		if (LocalObjectClass <= 100000) return;
+		DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
+		DWORD64 idk = mem->Read<DWORD64>(LocalObjectClass + 0x18);
+		BYTE b1 = mem->Read<BYTE>(idk + 0x38);
+		BYTE b2 = mem->Read<BYTE>(idk + 0x39);
+		return b1 && b2;	//if b1 and b2 are both 1 it is active both 0 inactive
+	}
+
 	enum boxType {
 		hiddenhackablecrate = 0,
 		crate_basic = 1,
@@ -303,58 +345,12 @@ namespace LootContainer {
 		survey_crater_oil = 22,
 	};
 
-	enum spawnType {
-		GENERIC = 0,
-		PLAYER = 1,
-		TOWN = 2,
-		AIRDROP = 3,
-		CRASHSITE = 4,
-		ROADSIDE = 5,
+	enum OreType {
+		stone_ore = 0,
+		metal_ore = 1,
+		sulfur_ore = 2,
 	};
-
-	struct container {
-		DWORD64 entity;
-		DWORD64 objClass;
-		std::string name;
-		int type;
-		Vector3 position;
-
-		void setType() {
-			if (containerTypeMap.find(this->name) == containerTypeMap.end()) this->type = -1;	//if not in map
-			else
-			{
-				this->type = containerTypeMap[this->name];
-			}
-		}
-
-		void setPosition() {
-			DWORD64 Object = mem->Read<DWORD64>(this->entity + 0x10);
-			if (Object <= 100000) return;
-			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
-			if (LocalObjectClass <= 100000) return;
-			DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
-			DWORD64 m_visual = mem->Read<DWORD64>(m_objptr + 0x8);
-			DWORD64 m_pos_comp = mem->Read<DWORD64>(m_visual + 0x38);
-			this->position = mem->Read<Vector3>(m_pos_comp + 0x90);
-		}
-
-		/*
-		void setPosition() {
-			DWORD64 Object = mem->Read<DWORD64>(this->entity + 0x10);
-			if (Object <= 100000) return;
-			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
-			if (LocalObjectClass <= 100000) return;
-			DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
-			DWORD64 m_visual = mem->Read<DWORD64>(m_objptr + 0x8);
-			DWORD64 m_pos_comp = mem->Read<DWORD64>(m_visual + 0x38);
-			this->position = mem->Read<Vector3>(m_pos_comp + 0x90);
-		}
-		*/
-	};
-
 };
-//extern std::map<std::string, int> containerTypeMap;
-
 
 class WeaponData
 {
@@ -759,31 +755,6 @@ public:
 	}
 };
 
-class Lootable
-{
-public:
-	Vector3 GetPosition() {
-		DWORD64 Model = mem->Read<DWORD64>((UINT_PTR)this + oModel);
-		DWORD64 bones = mem->Read<DWORD64>(Model + oBoneTransforms);
-	}
-
-	int getType(std::string name) {
-		name = name.substr(name.find_last_of("/") + 1);
-		name = name.substr(0,name.find("."));
-		return -1;
-		//if (LootContainer::containerTypeMap.find(name) == LootContainer::containerTypeMap.end()) return -1;	//if not in map
-		
-		//return LootContainer::containerTypeMap[name];
-	}
-
-
-	//getPos
-	//getType
-	//getContents -- maybe
-
-};
-
-
 class LPlayerBase
 {
 public:
@@ -791,3 +762,19 @@ public:
 };
 
 extern LPlayerBase LocalPlayer;
+
+
+class GameData {
+	std::vector<BasePlayer*> Players;
+	std::vector<EntityClass> Entities;
+
+	void updateEntities(){
+		for (std::vector<EntityClass>::iterator i = Entities.begin(); i != Entities.end();)
+		{
+			if (i->isActive())			//If the entity has not been mined/picked
+				i++;
+			else
+				Entities.erase(i);		//if it has been mined remove it
+		}
+	}
+};

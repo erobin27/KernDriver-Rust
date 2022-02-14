@@ -6,31 +6,9 @@
 
 bool mfound = false;
 LPlayerBase LocalPlayer;
-std::map<std::string, int> LootContainer::containerTypeMap = {
-	{"crate_basic", LootContainer::boxType::crate_basic},
-	{"crate_elite", LootContainer::boxType::crate_elite},
-	{"crate_mine", LootContainer::boxType::crate_mine},
-	{"crate_normal", LootContainer::boxType::crate_normal},
-	{"crate_normal_2", LootContainer::boxType::crate_normal_2},
-	{"crate_normal_2_food", LootContainer::boxType::crate_normal_2_food},
-	{"crate_normal_2_medical", LootContainer::boxType::crate_normal_2_medical},
-	{"crate_tools", LootContainer::boxType::crate_tools},
-	{"crate_underwater_advanced", LootContainer::boxType::crate_underwater_advanced},
-	{"crate_underwater_basic", LootContainer::boxType::crate_underwater_basic},
-	{"crate_ammunition", LootContainer::boxType::crate_ammunition},
-	{"crate_food_1", LootContainer::boxType::crate_food_1},
-	{"crate_food_2", LootContainer::boxType::crate_food_2},
-	{"crate_fuel", LootContainer::boxType::crate_fuel},
-	{"crate_medical", LootContainer::boxType::crate_medical},
-	{"codelockedhackablecrate", LootContainer::boxType::codelockedhackablecrate},
-	{"codelockedhackablecrate_oilrig", LootContainer::boxType::codelockedhackablecrate_oilrig},
-	{"bradley_crate", LootContainer::boxType::bradley_crate},
-	{"heli_crate", LootContainer::boxType::heli_crate},
-	{"cratemarker", LootContainer::boxType::cratemarker},
-	{"survey_crater", LootContainer::boxType::survey_crater},
-	{"survey_crater_oil", LootContainer::boxType::survey_crater_oil},
-};
 
+//BoxType to String
+/*
 std::string boxTypeToString(int type) {
 	switch (type) {
 	case 0:
@@ -83,7 +61,7 @@ std::string boxTypeToString(int type) {
 		return "unknown";
 	}
 };
-
+*/  
 
 
 enum RadarColors {
@@ -242,35 +220,11 @@ void radarLoop(Radar &myRadar) {
 		DWORD64 Obj = mem->Read<DWORD64>(Entity + 0x0);
 		DWORD64 ObjName = mem->Read<DWORD64>(Obj + 0x10);
 		std::string ClassName = readCharString(ObjName, 15);
-		//std::cout << LocalPos.Length() << std::endl;
 
 		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
 		if (Object <= 100000) continue;
 		DWORD64 ObjectClass = mem->Read<DWORD64>(Object + 0x28);
 		//std::cout << ClassName << std::endl;
-		//std::cout << ClassName << std::endl;
-		/*
-		if (ClassName.find(std::string("LootContainer")) != std::string::npos) {
-			std::cout << ClassName << std::hex << 0x20 + (i * 0x8) << std::endl;
-			DWORD64 storNamePtr = mem->Read<DWORD64>(ObjectClass + 0x368);
-			int storNameLen = mem->Read<int>(storNamePtr + 0x10);
-			DWORD64 storName = storNamePtr + 0x14;
-			std::wstring wstorString = readWCharString(storName, storNameLen);
-			//std::cout << wstring_to_string(wstorString) << std::endl;
-		}
-
-		if (ClassName.find(std::string("StorageContainer")) != std::string::npos) {
-			std::cout << ClassName << std::hex << 0x20 + (i * 0x8) << std::endl;
-			DWORD64 storNamePtr = mem->Read<DWORD64>(Entity + 0x60);
-			int storNameLen = mem->Read<int>(storNamePtr + 0x10);
-			DWORD64 storName = storNamePtr + 0x14;
-			std::wstring wstorString = readWCharString(storName, storNameLen);
-			//std::cout << wstring_to_string(wstorString) << std::endl;
-		}
-		if (ClassName.find(std::string("Bear")) != std::string::npos) {
-			std::cout << ClassName << std::endl;
-		}
-		/*
 
 		/*
 		* 
@@ -314,10 +268,6 @@ void radarLoop(Radar &myRadar) {
 			}
 		}//end BasePlayer if statement
 		else if (ClassName.find(std::string("LootContainer")) != std::string::npos) {			//if the entity is a player
-			LootContainer::container lootBox;
-			lootBox.entity = Entity;
-			lootBox.objClass = ObjectClass;
-
 			//Get object name
 			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
 			if (LocalObjectClass <= 100000) return;
@@ -325,79 +275,41 @@ void radarLoop(Radar &myRadar) {
 			std::string name = readStringFromMem(LocalObjectName);
 			name = name.substr(name.find_last_of("/") + 1);
 			name = name.substr(0, name.find("."));
-			lootBox.name = name;
-			lootBox.setType();
+
+			EntityClass box(Entity, ObjectClass, name, EntityClass::EntityTypes::Lootbox);
+
+			if(myRadar.menu.menuItems[box.name] && withinPerimeterRange(LocalPos, box.position, myRadar.range))	myRadar.createLootBlips(box);
+			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
+		}
+		else if (ClassName.find(std::string("Ore")) != std::string::npos) {			//if the entity is a player
 			
-			//get object position
-			lootBox.setPosition();
-			if(myRadar.menu.menuItems[lootBox.name] && withinPerimeterRange(LocalPos, lootBox.position, myRadar.range))	myRadar.createLootBlips(lootBox);
+			//Get object name
+			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+			if (LocalObjectClass <= 100000) return;
+			DWORD64 LocalObjectName = mem->Read<DWORD64>(LocalObjectClass + 0x60);
+			std::string name = readStringFromMem(LocalObjectName);
+			name = name.substr(name.find_last_of("/") + 1);
+			name = name.substr(0, name.find("."));
+
+			EntityClass ore(Entity, ObjectClass, name, EntityClass::EntityTypes::Ore);
+			
+
+			if (myRadar.menu.menuItems[ore.name] && withinPerimeterRange(LocalPos, ore.position, myRadar.range)) {
+				myRadar.createLootBlips(ore);
+
+			}
 			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
 		}
 	}//end entity forloop
-	/*
-	std::vector<Vector3> DrawRadarPosition;
-
-	//RADAR
-	std::vector<std::pair<int, int>> RadarDegrees; //angle, distance
-	for (int i = 0; i < Players.size(); i++) {
-		Vector3 Position = Players[i]->GetPosition();
-		Vector3 DrawPosition;
-		float xPos = Position[0] - LocalPos[0];
-		float yPos = Position[2] - LocalPos[2];
-		int distance = sqrt(pow(xPos, 2) + pow(yPos, 2));
-
-		//float localLookRadians = LocalLookingDegree / 180 * 3.141592653;
-
-
-		float rotX  = cos(LocalLookingDegree * 3.141592653 / 180)* xPos - sin(LocalLookingDegree * 3.141592653 / 180) * yPos;
-		float rotY = cos(LocalLookingDegree * 3.141592653 / 180) * yPos + sin(LocalLookingDegree * 3.141592653 / 180) * xPos;
-		if (distance < radarDistance)	DrawRadarPosition.push_back({ rotX / radarDistance, rotY/radarDistance, (float)RadarColors::Enemy});
-
-		float Angle = 0;
-		if ((xPos > 0 && yPos > 0) || (xPos < 0 && yPos < 0))	//if in quadrant 1 or 3
-		{
-			Angle = atan(std::abs(xPos) / std::abs(yPos)) * (180 / 3.141592653);
-			if (xPos < 0) Angle += 180;
-		}
-		else {
-			Angle = atan(std::abs(yPos) / std::abs(xPos)) * (180 / 3.141592653);
-			if (xPos > 0) {
-				Angle += 90;
-			}
-			else {
-				Angle += 270;
-			}
-		}
-		RadarDegrees.push_back(std::make_pair((int)Angle, distance));
-	}
-
-	bool Alert = false;
-	for (int i = 0; i < RadarDegrees.size(); i++) {
-		if (RadarDegrees[i].second <= radarDistance)	//if within radar
-		{
-			system("Color 40");
-			std::cout << "ENEMY NEAR WITHIN " << radarDistance << "M: " << std::endl;
-			Alert = true;
-			break;
-		}
-	}
-
-	if (Alert) {
-		for (int i = 0; i < RadarDegrees.size(); i++) {
-			if(RadarDegrees[i].second <= radarDistance)	//if within radar
-			{
-				std::cout << i + 1 << ":\t" << RadarDegrees[i].first << " degrees " << RadarDegrees[i].second << "M away\n" << std::endl;
-			}
-		}
-	}
-	else {
-		system("Color 0F");
-		std::cout << radarDistance << "M clear...	hold END to stop radar scanning." << std::endl;
-	}
-
-	drawWindow(window, DrawRadarPosition);
-	*/
 }
+
+
+void UpdateLoop() {
+
+}
+
+
+
 
 
 /*

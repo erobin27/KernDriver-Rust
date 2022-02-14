@@ -148,7 +148,7 @@ public:
 
 	//Blip Functions
 	bool createPlayerBlips(BasePlayer* player, int type);
-	void createLootBlips(LootContainer::container loot);
+	void createLootBlips(EntityClass loot);
 	void renderBlip(Blip blip, bool rotate = true);
 	bool renderBlipName(Blip blip, bool rotate = true);
 	void clearBlips();

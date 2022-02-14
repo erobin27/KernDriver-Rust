@@ -39,6 +39,11 @@ void RadarMenu::initMenuOptions() {
 	this->menuItems["survey_crater"] = false;
 	this->menuItems["survey_crater_oil"] = false;
 
+	//ore options
+	this->menuItems["stone-ore"] = false;
+	this->menuItems["metal-ore"] = false;
+	this->menuItems["sulfur-ore"] = false;
+
 	//other options
 	this->menuItems["show team"] = false;
 	this->menuItems["show sleepers"] = false;
@@ -429,8 +434,6 @@ void Radar::renderBlip(Blip blip, bool rotate) { //middle.y needs to be z val
 	renderPoint.x = (blip.x - this->centerBlip.x) / this->range;
 	renderPoint.y = (blip.y - this->centerBlip.y) / this->range;
 
-	std::cout << renderPoint.x << ", " << renderPoint.y << std::endl;
-
 	if (renderPoint.y > 1.0 || renderPoint.y < -1.0) return;
 	if (renderPoint.x > 1.0 || renderPoint.x < -1.0) return;
 
@@ -533,8 +536,19 @@ bool Radar::createPlayerBlips(BasePlayer* player, int type) {
 	}
 }
 
-void Radar::createLootBlips(LootContainer::container loot) {
-	Blip blip = Blip(loot.name, loot.position.x, loot.position.z, loot.position.y, "YELLOW", 10, 0);
+void Radar::createLootBlips(EntityClass loot) {
+	Blip blip;
+	switch(loot.EntityType) {
+		case EntityClass::EntityTypes::Lootbox:
+			blip = Blip(loot.name, loot.position.x, loot.position.z, loot.position.y, "YELLOW", 10, 0);
+			break;
+		case EntityClass::EntityTypes::Ore:
+			blip = Blip(loot.name, loot.position.x, loot.position.z, loot.position.y, "BLUE", 10, 0);
+			break;
+		default:
+			blip = Blip(loot.name, loot.position.x, loot.position.z, loot.position.y, "YELLOW", 10, 0);
+			break;
+	}
 	blipList.emplace_back(blip);
 }
 
@@ -649,6 +663,11 @@ void Radar::drawWindowTesting() {
 
 void Radar::drawSonar() {
 	if (glfwWindowShouldClose(this->window)) glfwTerminate();
+	if (this->blipList.empty()) {
+		drawBlank();
+		return;
+	}
+
 	/* Render here */
 	glClear(GL_COLOR_BUFFER_BIT);
 	this->text = CreateGLText();
@@ -665,6 +684,7 @@ void Radar::drawSonar() {
 	glEnd();
 
 	//draw blips
+
 	for (int i = 0; i < this->blipList.size(); i++) {
 		renderBlip(this->blipList[i], true);
 	}
