@@ -190,8 +190,34 @@ void basePlayerLoop() {
 	}
 }
 
-void radarLoop(Radar &myRadar) {
+void radarLoop(Radar &myRadar, GameData &gData, bool RefreshEntities) {
 	myRadar.clearBlips();
+
+	//if we did not check for new entities then update old ones by checking if someone has destroyed them
+	if (!RefreshEntities) {
+		for (std::vector<EntityClass>::iterator i = gData.Entities.begin(); i != gData.Entities.end();)
+		{
+			if (i->isActive()) {		//If the entity has not been mined/picked
+				if (myRadar.menu.menuItems[i->name] && withinPerimeterRange(gData.LocalPos, i->position, myRadar.range, myRadar)) {
+					myRadar.createLootBlips(*i);
+				}
+				i++;
+			}
+			else
+				i = gData.Entities.erase(i);		//if it has been mined remove it
+		}
+	} 
+	else {
+		gData.clear();
+	}
+
+
+
+	/*
+	* 
+	*	BEGIN GAME FUNCTIONS THINGS
+	* 
+	*/
 
 	BasePlayer* LocalPlayer = nullptr;
 	Vector3 LocalPos;
@@ -252,6 +278,8 @@ void radarLoop(Radar &myRadar) {
 					LocalPos = LocalPlayer->GetPosition();
 					LocalTeam = LocalPlayer->GetTeam();
 					LocalLookingDegree = LocalPlayer->GetLookDegree();
+
+					gData.LocalPos = LocalPos;
 					//add if in range
 					myRadar.createPlayerBlips(Player, Radar::blipType::localPlayer);
 				}
@@ -275,50 +303,48 @@ void radarLoop(Radar &myRadar) {
 				myRadar.createPlayerBlips(Player, Radar::blipType::sleeper);
 			}
 		}//end BasePlayer if statement
-		else if (ClassName.find(std::string("LootContainer")) != std::string::npos) {			//if the entity is a player
-			//Get object name
-			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
-			if (LocalObjectClass <= 100000) return;
-			DWORD64 LocalObjectName = mem->Read<DWORD64>(LocalObjectClass + 0x60);
-			std::string name = readStringFromMem(LocalObjectName);
-			name = name.substr(name.find_last_of("/") + 1);
-			name = name.substr(0, name.find("."));
+		else if (RefreshEntities) {
+			if (ClassName.find(std::string("LootContainer")) != std::string::npos) {			//if the entity is a player
+				//Get object name
+				DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+				if (LocalObjectClass <= 100000) return;
+				DWORD64 LocalObjectName = mem->Read<DWORD64>(LocalObjectClass + 0x60);
+				std::string name = readStringFromMem(LocalObjectName);
+				name = name.substr(name.find_last_of("/") + 1);
+				name = name.substr(0, name.find("."));
 
-			EntityClass box(Entity, ObjectClass, name, EntityClass::EntityTypes::Lootbox);
+				EntityClass box(Entity, ObjectClass, name, EntityClass::EntityTypes::Lootbox);
 
-			if(myRadar.menu.menuItems[box.name] && withinPerimeterRange(LocalPos, box.position, myRadar.range, myRadar))	myRadar.createLootBlips(box);
-			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
-		}
-		else if (ClassName.find(std::string("Ore")) != std::string::npos) {			//if the entity is a player
-			
-			//Get object name
-			DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
-			if (LocalObjectClass <= 100000) return;
-			DWORD64 LocalObjectName = mem->Read<DWORD64>(LocalObjectClass + 0x60);
-			std::string name = readStringFromMem(LocalObjectName);
-			name = name.substr(name.find_last_of("/") + 1);
-			name = name.substr(0, name.find("."));
-
-			EntityClass ore(Entity, ObjectClass, name, EntityClass::EntityTypes::Ore);
-			
-
-			if (myRadar.menu.menuItems[ore.name] && withinPerimeterRange(LocalPos, ore.position, myRadar.range, myRadar)) {
-				myRadar.createLootBlips(ore);
+				gData.Entities.emplace_back(box);
+				if (myRadar.menu.menuItems[box.name] && withinPerimeterRange(LocalPos, box.position, myRadar.range, myRadar))	myRadar.createLootBlips(box);
 
 			}
-			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
-		}
+			else if (ClassName.find(std::string("Ore")) != std::string::npos) {			//if the entity is a player
+
+				//Get object name
+				DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
+				if (LocalObjectClass <= 100000) return;
+				DWORD64 LocalObjectName = mem->Read<DWORD64>(LocalObjectClass + 0x60);
+				std::string name = readStringFromMem(LocalObjectName);
+				name = name.substr(name.find_last_of("/") + 1);
+				name = name.substr(0, name.find("."));
+
+				EntityClass ore(Entity, ObjectClass, name, EntityClass::EntityTypes::Ore);
+
+
+
+				gData.Entities.emplace_back(ore);
+				if (myRadar.menu.menuItems[ore.name] && withinPerimeterRange(LocalPos, ore.position, myRadar.range, myRadar)) {
+					myRadar.createLootBlips(ore);
+				}
+				//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
+			}
+		}	 //Get static entities in loop
 	}//end entity forloop
+
 
 	myRadar.swapBlipBuffers();
 }
-
-
-void UpdateLoop() {
-
-}
-
-
 
 
 

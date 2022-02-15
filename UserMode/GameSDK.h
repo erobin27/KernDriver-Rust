@@ -313,7 +313,7 @@ public:
 		DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
 		if (LocalObjectClass <= 100000) return false;
 		DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
-		DWORD64 idk = mem->Read<DWORD64>(LocalObjectClass + 0x18);
+		DWORD64 idk = mem->Read<DWORD64>(m_objptr + 0x18);
 		BYTE b1 = mem->Read<BYTE>(idk + 0x38);
 		BYTE b2 = mem->Read<BYTE>(idk + 0x39);
 		return (b1 && b2);	//if b1 and b2 are both 1 it is active both 0 inactive
@@ -765,8 +765,10 @@ extern LPlayerBase LocalPlayer;
 
 
 class GameData {
+public:
 	std::vector<BasePlayer*> Players;
 	std::vector<EntityClass> Entities;
+	Vector3 LocalPos;
 
 	void updateEntities(){
 		for (std::vector<EntityClass>::iterator i = Entities.begin(); i != Entities.end();)
@@ -777,4 +779,10 @@ class GameData {
 				Entities.erase(i);		//if it has been mined remove it
 		}
 	}
+
+	void clear() {
+		Entities.clear();
+	}
+
+
 };

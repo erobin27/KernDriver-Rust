@@ -10,6 +10,7 @@
 
 Memory* mem = nullptr;
 UINT64 StringAddress = 0;
+int RefreshDelaySeconds = 10;
 
 class ConsoleMenu {
 	vector<std::string> menuLines;
@@ -85,8 +86,22 @@ void printInstructions(ConsoleMenu menu) {
 
 void sonarLoop(Radar& myRadar) {
 	//UNTIL END IS PRESSED 
+	int count = 1;
+	GameData gData;
+	radarLoop(myRadar, gData, true);
 	while (!(GetKeyState(VK_END) & 0x8000)) {
-		radarLoop(myRadar);		//Detect all entities
+
+		//if count % (1000ms in a second * 10 Seconds)/10ms Sleep time we use == 0
+		if (count % ((100 * RefreshDelaySeconds)/10) == 0)	{
+			radarLoop(myRadar, gData, true);		//Detect all entities
+			count = 1;
+		}
+		else
+		{
+			radarLoop(myRadar, gData, false);		//Detect players and check if static entities have been destroyed
+		}
+
+		count++;
 		Sleep(10);
 	}
 }
@@ -94,6 +109,7 @@ void sonarLoop(Radar& myRadar) {
 void draw(Radar& myRadar) {
 	while (!(GetKeyState(VK_END) & 0x8000)) {
 		myRadar.drawSonar();	//Draw entities on the radar
+
 		if (GetKeyState(VK_DOWN) & 0x8000) {	//if down arrow pressed
 			myRadar.menu.nextItem();
 			Sleep(100);
@@ -252,8 +268,8 @@ void gameLoop() {
 				glfwTerminate();
 				myRadar = Radar(1000, 1000);
 			}
-			myRadar.setRange(radarDistance);
 
+			myRadar.setRange(radarDistance);
 
 			std::thread entityLoops(sonarLoop, std::ref(myRadar));
 			draw(myRadar);

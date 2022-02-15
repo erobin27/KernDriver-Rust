@@ -424,6 +424,7 @@ void Radar::drawHealthBar(GLfloat x, GLfloat y, float size, float percent, float
 	float height = (size / this->windowY) / 5;
 	//drawRect(x, y - healthBarYSpacing, length + yOffset/2, height + yOffset/2, "WHITE");
 
+	drawRect(x, y - healthBarYSpacing, length, height, "WHITE", 1.0);
 	drawRect(x, y - healthBarYSpacing, length, height, color, percent);
 }
 
