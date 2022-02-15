@@ -102,6 +102,7 @@ class Radar {
 	Blip centerBlip;
 	//RadarMenu menu;
 	std::vector<Blip> blipList;
+	std::vector<Blip> drawBlipList;
 	//vector<int> RenderList;
 
 public:
@@ -129,6 +130,7 @@ public:
 	//GL functions
 	GLFWwindow* getWindow();
 	void closeWindow();
+	void InitText();
 
 	//Math functions
 	float RadarOrMenu(float y, bool onMenu);
@@ -151,6 +153,7 @@ public:
 	void createLootBlips(EntityClass loot);
 	void renderBlip(Blip blip, bool rotate = true);
 	bool renderBlipName(Blip blip, bool rotate = true);
+	void swapBlipBuffers();
 	void clearBlips();
 
 	//Window Display Functions

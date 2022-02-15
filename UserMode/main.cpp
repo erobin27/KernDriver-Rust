@@ -5,6 +5,7 @@
 #include <iostream>
 #include <windows.h> //for colors
 #include <iomanip>
+#include <thread>
 
 
 Memory* mem = nullptr;
@@ -80,6 +81,33 @@ void printInstructions(ConsoleMenu menu) {
 	cout << skCrypt("UP/DOWN: Move up and down through the menu") << endl;
 	cout << skCrypt("LEFT/RIGHT: Adjust variables up and down") << endl;
 	cout << skCrypt("HOME: Start Radar Scanning\t\t END: hold to end radar scanning") << endl;
+}
+
+void sonarLoop(Radar& myRadar) {
+	//UNTIL END IS PRESSED 
+	while (!(GetKeyState(VK_END) & 0x8000)) {
+		radarLoop(myRadar);		//Detect all entities
+		Sleep(10);
+	}
+}
+
+void draw(Radar& myRadar) {
+	while (!(GetKeyState(VK_END) & 0x8000)) {
+		myRadar.drawSonar();	//Draw entities on the radar
+		if (GetKeyState(VK_DOWN) & 0x8000) {	//if down arrow pressed
+			myRadar.menu.nextItem();
+			Sleep(100);
+		}
+		if (GetKeyState(VK_UP) & 0x8000) {		//if up arrow pressed
+			myRadar.menu.previousItem();
+			Sleep(100);
+		}
+		if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {	//if left/right arrow pressed
+			myRadar.menu.changeItem();
+			Sleep(100);
+		}
+		Sleep(10);
+	}
 }
 
 void gameLoop() {
@@ -220,36 +248,26 @@ void gameLoop() {
 		//Radar
 		if (GetKeyState(VK_HOME) & 0x8000) {
 			system(CLEAR);
+			if (glfwWindowShouldClose(myRadar.getWindow())) {
+				glfwTerminate();
+				myRadar = Radar(1000, 1000);
+			}
 			myRadar.setRange(radarDistance);
 
-			//UNTIL END IS PRESSED 
-			while (!(GetKeyState(VK_END) & 0x8000)) {
-				if (glfwWindowShouldClose(myRadar.getWindow())) {
-					myRadar = Radar(1000, 1000);
-					break;
-				}
-				if (GetKeyState(VK_DOWN) & 0x8000) {	//if down arrow pressed
-					myRadar.menu.nextItem();
-					Sleep(100);
-				}
-				if (GetKeyState(VK_UP) & 0x8000) {		//if up arrow pressed
-					myRadar.menu.previousItem();
-					Sleep(100);
-				}
-				if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {	//if left/right arrow pressed
-					myRadar.menu.changeItem();
-					Sleep(100);
-				}
 
+			std::thread entityLoops(sonarLoop, std::ref(myRadar));
+			draw(myRadar);
 				
-				radarLoop(myRadar);		//Detect all entities
-				myRadar.drawSonar();	//Draw entities on the radar
-				Sleep(50);
-			}
+			entityLoops.join();
+			myRadar.clearBlips();
+			myRadar.swapBlipBuffers();
 
 			//After END is pressed clear the console and print the main menu
 			system(WHITE);
 			printInstructions(menu);
+		}
+		else {
+			myRadar.drawSonar();
 		}
 	}
 }

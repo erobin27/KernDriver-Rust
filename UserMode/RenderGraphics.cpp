@@ -47,6 +47,7 @@ void RadarMenu::initMenuOptions() {
 	//other options
 	this->menuItems["show team"] = false;
 	this->menuItems["show sleepers"] = false;
+	this->menuItems["show tunnels"] = true;	//if you are not in tunnels dont show things in tunnels... if you are dont show things above tunnels
 
 	for (auto const& imap : this->menuItems)
 		this->keys.push_back(imap.first);
@@ -475,6 +476,7 @@ void Radar::renderBlip(Blip blip, bool rotate) { //middle.y needs to be z val
 		);
 	}
 
+	/*								//Draw a line that shows which direction they are looking... DISABLED
 	if (blip.lookDirection) {
 		this->drawLineByAngle(
 			renderPoint.x,
@@ -483,6 +485,7 @@ void Radar::renderBlip(Blip blip, bool rotate) { //middle.y needs to be z val
 			blip.size * 2,
 			"WHITE");
 	}
+	*/
 }
 
 bool Radar::renderBlipName(Blip blip, bool rotate) {
@@ -513,7 +516,7 @@ bool Radar::createPlayerBlips(BasePlayer* player, int type) {
 	Blip blip;
 	switch (type) {
 	case localPlayer:
-		blip = Blip("", pPos.x, pPos.z, pPos.y, "WHITE", 5, 0, player->GetLookDegree());
+		blip = Blip("", pPos.x, pPos.z, pPos.y, "WHITE", 0, 0, player->GetLookDegree());
 		this->centerBlip = blip;
 		this->blipList.emplace_back(blip);
 		break;
@@ -553,6 +556,11 @@ void Radar::createLootBlips(EntityClass loot) {
 }
 
 void Radar::clearBlips() {
+	this->blipList.clear();
+}
+
+void Radar::swapBlipBuffers() {
+	this->drawBlipList = this->blipList;
 	this->blipList.clear();
 }
 
@@ -663,10 +671,6 @@ void Radar::drawWindowTesting() {
 
 void Radar::drawSonar() {
 	if (glfwWindowShouldClose(this->window)) glfwTerminate();
-	if (this->blipList.empty()) {
-		drawBlank();
-		return;
-	}
 
 	/* Render here */
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -685,13 +689,14 @@ void Radar::drawSonar() {
 
 	//draw blips
 
-	for (int i = 0; i < this->blipList.size(); i++) {
-		renderBlip(this->blipList[i], true);
+	if (!this->drawBlipList.empty()) {
+		for (int i = 0; i < this->drawBlipList.size(); i++) {
+			renderBlip(this->drawBlipList[i], true);
+		}
+		for (int i = 0; i < this->drawBlipList.size(); i++) {
+			renderBlipName(this->drawBlipList[i], true);
+		}
 	}
-	for (int i = 0; i < this->blipList.size(); i++) {
-		renderBlipName(this->blipList[i], true);
-	}
-
 	renderMenu();
 
 	gltDeleteText(this->text);

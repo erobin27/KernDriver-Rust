@@ -309,14 +309,14 @@ public:
 
 	bool isActive() {
 		DWORD64 Object = mem->Read<DWORD64>(Entity + 0x10);
-		if (Object <= 100000) return;
+		if (Object <= 100000) return false;
 		DWORD64 LocalObjectClass = mem->Read<DWORD64>(Object + 0x30);
-		if (LocalObjectClass <= 100000) return;
+		if (LocalObjectClass <= 100000) return false;
 		DWORD64 m_objptr = mem->Read<DWORD64>(LocalObjectClass + 0x30);
 		DWORD64 idk = mem->Read<DWORD64>(LocalObjectClass + 0x18);
 		BYTE b1 = mem->Read<BYTE>(idk + 0x38);
 		BYTE b2 = mem->Read<BYTE>(idk + 0x39);
-		return b1 && b2;	//if b1 and b2 are both 1 it is active both 0 inactive
+		return (b1 && b2);	//if b1 and b2 are both 1 it is active both 0 inactive
 	}
 
 	enum boxType {

@@ -71,10 +71,18 @@ enum RadarColors {
 	Sleeper = 4,
 };
 
-bool withinPerimeterRange(Vector3 localPos, Vector3 entityPos, float range) {
+bool withinPerimeterRange(Vector3 localPos, Vector3 entityPos, float range, Radar &myRadar) {
 	float x = entityPos.x - localPos.x;
 	float y = entityPos.z - localPos.z;
 
+	if (!myRadar.menu.menuItems["show tunnels"]) {	//DO NOT SHOW PEOPLE IN THE TUNNELS
+		//if below ground dont show above
+		if (localPos.y < -45.0 && entityPos.y > -3) return false;	//if player is in the tunnels dont show things above ground
+		
+		//if above dont show below
+		if (localPos.y > -10.0 && entityPos.y < -45) return false;
+	}
+	
 	if (fabs(x) < range && fabs(y) < range) return true;
 
 	return false;
@@ -248,7 +256,7 @@ void radarLoop(Radar &myRadar) {
 					myRadar.createPlayerBlips(Player, Radar::blipType::localPlayer);
 				}
 			}//end local player
-			else if (!Player->isSleeping() && withinPerimeterRange(LocalPos, Player->GetPosition(), myRadar.range)) {														//if not sleeping
+			else if (!Player->isSleeping() && withinPerimeterRange(LocalPos, Player->GetPosition(), myRadar.range, myRadar)) {														//if not sleeping
 				if (mem->Read<bool>(ObjectClass + oWasDead)) continue;	//dont show on radar if player is dead
 				if (LocalTeam == Player->GetTeam() && LocalTeam != 0){
 					if (myRadar.menu.menuItems["show team"]) {										//if we choose to render teammates then render
@@ -263,7 +271,7 @@ void radarLoop(Radar &myRadar) {
 				//Players.push_back(Player);
 				myRadar.createPlayerBlips(Player, Radar::blipType::enemy);
 			}
-			else if (Player->isSleeping() & myRadar.menu.menuItems["show sleepers"] & withinPerimeterRange(LocalPos, Player->GetPosition(), myRadar.range)) {
+			else if (Player->isSleeping() & myRadar.menu.menuItems["show sleepers"] & withinPerimeterRange(LocalPos, Player->GetPosition(), myRadar.range, myRadar)) {
 				myRadar.createPlayerBlips(Player, Radar::blipType::sleeper);
 			}
 		}//end BasePlayer if statement
@@ -278,7 +286,7 @@ void radarLoop(Radar &myRadar) {
 
 			EntityClass box(Entity, ObjectClass, name, EntityClass::EntityTypes::Lootbox);
 
-			if(myRadar.menu.menuItems[box.name] && withinPerimeterRange(LocalPos, box.position, myRadar.range))	myRadar.createLootBlips(box);
+			if(myRadar.menu.menuItems[box.name] && withinPerimeterRange(LocalPos, box.position, myRadar.range, myRadar))	myRadar.createLootBlips(box);
 			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
 		}
 		else if (ClassName.find(std::string("Ore")) != std::string::npos) {			//if the entity is a player
@@ -294,13 +302,15 @@ void radarLoop(Radar &myRadar) {
 			EntityClass ore(Entity, ObjectClass, name, EntityClass::EntityTypes::Ore);
 			
 
-			if (myRadar.menu.menuItems[ore.name] && withinPerimeterRange(LocalPos, ore.position, myRadar.range)) {
+			if (myRadar.menu.menuItems[ore.name] && withinPerimeterRange(LocalPos, ore.position, myRadar.range, myRadar)) {
 				myRadar.createLootBlips(ore);
 
 			}
 			//if(lootBox.type > 0)	myRadar.createLootBlips(lootBox);
 		}
 	}//end entity forloop
+
+	myRadar.swapBlipBuffers();
 }
 
 
