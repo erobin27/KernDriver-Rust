@@ -5,8 +5,11 @@ bool nullhook::call_kernel_function(void* kernel_function_address)
 	if (!kernel_function_address)
 		return false;
 
-	PVOID* function = reinterpret_cast<PVOID*>(get_system_module_export("\\SystemRoot\\System32\\drivers\\dxgkrnl.sys",
-																		"NtQueryCompositionSurfaceStatistics"));
+	//PVOID* function = reinterpret_cast<PVOID*>(get_system_module_export("\\SystemRoot\\System32\\drivers\\dxgkrnl.sys",
+	//																	"NtQueryCompositionSurfaceHDRMetaData"));
+
+	PVOID* function = reinterpret_cast<PVOID*>(get_system_module_export("\\SystemRoot\\System32\\win32kbase.sys",
+																		"NtUserEnableTouchPad"));
 
 	if (!function)
 		return false;

@@ -8,7 +8,7 @@ template<typename ... Arg>
 uint64_t Memory::call_hook(const Arg ... args)
 {
 	LoadLibrary("user32.dll");
-	void* hooked_func = GetProcAddress(LoadLibrary("win32u.dll"), "NtQueryCompositionSurfaceStatistics");
+	void* hooked_func = GetProcAddress(LoadLibrary("win32u.dll"), "NtUserEnableTouchPad");
 
 	auto func = static_cast<uint64_t(_stdcall*)(Arg...)>(hooked_func);
 

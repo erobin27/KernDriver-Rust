@@ -7,8 +7,8 @@
 //game structs
 //[Base + g_BN_Steam] + oEntityRealm] + oClientEntitiesList] + oClientEntitiesValues]
 //client entities = read()
-#define g_BN 0x314CC88			//0x32A4668
-#define g_BN_Steam 0x314CC88
+#define g_BN 0x3171BE0			//0x32A4668
+#define g_BN_Steam 0x3171BE0
 #define GOM 0x17C1F18			//doesn't change (usually)
 
 
@@ -23,27 +23,27 @@
 #define oMaxHealth 0x228		//float _maxHealth
 
 //BaseEntity Class
-#define oModel 0x128
+#define oModel 0x128			//BaseEntity: Model model
 
 //Model Class
 #define oBoneTransforms 0x48
 
 
 //BasePlayer Class
+#define oPlayerInput 0x4E0		//BasePlayer: PlayerInput input
+#define oPlayerMovement 0x4E8	//BasePlayer: BaseMovement movement
 #define oPlayerModel 0x4C0		//BasePlayer: PlayerModel playerModel
 #define oWasSleeping 0x521		//BasePlayer: Bool wasSleeping				not used
 #define oWasDead 0x523			//BasePlayer: Bool wasDead
-#define oPlayerFlags 0x680		//BasePlayer: BasePlayer.PlayerFlags playerFlags
-#define oBelt 0x6b8				//BasePlayer: PlayerBelt Belt
-#define oPlayerInventory 0x690	//BasePlayer: PlayerInvetory inventory
-#define oPlayerInput 0x4E0		//BasePlayer: PlayerInput input
-#define oPlayerMovement 0x4E8	//BasePlayer: BaseMovement movement
-#define oSteamID 0x6C8			//BasePlayer: ULONG UserID
-#define oDisplayName 0x6E0		//BasePlayer: string _displayName
-#define oCurrentTeam 0x598		//BasePlayer: ULONG Current Team
-#define oClientTeam 0x5a0		//BasePlayer: PlayerTeam clientTeam
-#define oActiveUID 0x5D0		//BasePlayer: uint clActiveItem;
-#define oModelState 0x5F8		//BasePlayer: modelstate modelstate;
+#define oCurrentTeam 0x590		//BasePlayer: ULONG Current Team
+#define oClientTeam 0x598		//BasePlayer: PlayerTeam clientTeam
+#define oActiveUID 0x5C8		//BasePlayer: uint clActiveItem;
+#define oModelState 0x5F0		//BasePlayer: modelstate modelstate;
+#define oPlayerFlags 0x678		//BasePlayer: BasePlayer.PlayerFlags playerFlags
+#define oPlayerInventory 0x688	//BasePlayer: PlayerInvetory inventory
+#define oBelt 0x6b0				//BasePlayer: PlayerBelt Belt
+#define oSteamID 0x6c0			//BasePlayer: ULONG UserID
+#define oDisplayName 0x6d8		//BasePlayer: string _displayName
 
 //PlayerInventory Class
 #define oContainerMain 0x20		//PlayerInventory: ItemContainer containerMain
@@ -59,7 +59,7 @@
 
 //PlayerModel Class
 #define oSmoothLookAngle 0x20	//PlayerModel: Vector3 SmoothLookAngle
-#define oPlayerPosition 0x208	//PlayerModel: Vector3 position
+#define oPlayerPosition 0x218	//PlayerModel: Vector3 position
 
 //BaseProjectile Class			Referenced by oHeld
 #define oRecoil 0x2D8			//BaseProjectile: RecoilProperties recoil;
@@ -707,7 +707,7 @@ public:
 			//printf("%i: %i", i, GetWeaponInfo(i)->GetUID());
 
 			if (ActUID == (ActiveWeapon = GetWeaponInfo(i))->GetUID()) {
-				printf("\nActiveWeapon: %i\n", ActiveWeapon);
+				//printf("\nActiveWeapon: %i\n", ActiveWeapon);
 				return ActiveWeapon;
 			}
 		}

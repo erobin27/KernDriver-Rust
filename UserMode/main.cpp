@@ -204,8 +204,8 @@ void gameLoop() {
 				menu.updateMenuLine("Current Recoil Multiplier: ", recoilMultiplierAdjustable);
 			}
 			else if (menu.getSelectedLineVariable() == "AIMCONE") {
-				if (aimconeMultiplier - aimconeAdjustment <= 0.0f) {
-					aimconeMultiplier = 0.1f;
+				if (aimconeMultiplier - aimconeAdjustment <= -0.5f) {
+					aimconeMultiplier = -0.5f;
 				}
 				else {
 					aimconeMultiplier -= aimconeAdjustment;//decrease aimcone
