@@ -102,6 +102,10 @@ void Radar::renderMenu() {
 }
 
 //GL FUNCTIONS
+void Radar::createRadarWindow() {
+	this->window = CreateGLWindow(this->windowX, this->windowY + this->menu.y);
+}
+
 GLFWwindow* CreateGLWindow(int windowX, int windowY) {
 	GLFWwindow* window;
 

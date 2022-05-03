@@ -107,6 +107,7 @@ void sonarLoop(Radar& myRadar) {
 }
 
 void draw(Radar& myRadar) {
+	myRadar.createRadarWindow();
 	while (!(GetKeyState(VK_END) & 0x8000)) {
 		myRadar.drawSonar();	//Draw entities on the radar
 
@@ -139,6 +140,7 @@ void gameLoop() {
 	printInstructions(menu);
 
 	Radar myRadar = Radar(1000, 1000);
+
 	while (true) {
 		//printf("\t\tIN GAMELOOP:");
 		//entityLoop();
@@ -270,20 +272,19 @@ void gameLoop() {
 			}
 
 			myRadar.setRange(radarDistance);
-
-			std::thread readingThread(sonarLoop, std::ref(myRadar));		//created thread never access the game
-			draw(myRadar);
+			std::cout << skCrypt("hold END until menu reappears...\n");
+			std::thread readingThread(draw, std::ref(myRadar));		//created thread never access the game
+			sonarLoop(myRadar);
 				
 			readingThread.join();
 			myRadar.clearBlips();
 			myRadar.swapBlipBuffers();
+			glfwTerminate(); //closes window
+			myRadar = Radar(1000, 1000); // creates new radar
 
 			//After END is pressed clear the console and print the main menu
 			system(WHITE);
 			printInstructions(menu);
-		}
-		else {
-			myRadar.drawSonar();
 		}
 	}
 }

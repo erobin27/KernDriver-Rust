@@ -112,7 +112,6 @@ public:
 		this->menu = RadarMenu(sizeX, sizeY / 3);
 		this->windowX = sizeX;
 		this->windowY = sizeY;
-		this->window = CreateGLWindow(sizeX, sizeY + this->menu.y);
 		this->range = 200;
 	}
 
@@ -128,6 +127,7 @@ public:
 	void renderMenu();
 
 	//GL functions
+	void createRadarWindow();
 	GLFWwindow* getWindow();
 	void closeWindow();
 	void InitText();
