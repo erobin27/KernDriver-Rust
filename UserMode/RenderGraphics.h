@@ -41,7 +41,7 @@ public:
 	}
 
 	void nextItem() {
-		if (this->selectedItem + 1 >= menuItems.size()) {
+		if (this->selectedItem + 1 >= keys.size()) {
 			this->selectedItem = 0;
 		}
 		else {
@@ -51,7 +51,7 @@ public:
 
 	void previousItem() {
 		if (this->selectedItem - 1 < 0) {
-			this->selectedItem = menuItems.size()-1;
+			this->selectedItem = keys.size()-1;
 		}
 		else {
 			this->selectedItem--;

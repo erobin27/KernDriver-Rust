@@ -8,7 +8,7 @@ bool compareWeapon(std::wstring compareTo ,std::wstring currWeapon) {
 
 void callRecoil(std::string gunName, WeaponData* Weapon) {
 	if (recoilMultiplier.find(gunName) == recoilMultiplier.end()) { 
-		std::cout << "ERROR: " << gunName << " not found in config file." << std::endl;
+		std::cout << skCrypt("ERROR: ") << gunName << skCrypt(" not found in config file.") << std::endl;
 	}
 	
 	//set global variable for last gun recoil changed for
@@ -19,15 +19,15 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 		//Read the default Recoil Values into defRecoil
 		float* defRecoil = Weapon->ReadRecoil();//dArr[6];
 		float* defAimCone = Weapon->ReadAimCone();//dArr[6];
-		std::cout << "Default MinYaw: " << defRecoil[0] << std::endl;
-		std::cout << "Default MaxYaw: " << defRecoil[1] << std::endl;
-		std::cout << "Default MinPitch: " << defRecoil[2] << std::endl;
-		std::cout << "Default MaxPitch: " << defRecoil[3] << std::endl;
-		std::cout << "Default ADS Scale: " << defRecoil[4] << std::endl;
-		std::cout << "Default Move Pen: " << defRecoil[5] << std::endl;
+		//std::cout << "Default MinYaw: " << defRecoil[0] << std::endl;
+		//std::cout << "Default MaxYaw: " << defRecoil[1] << std::endl;
+		//std::cout << "Default MinPitch: " << defRecoil[2] << std::endl;
+		//std::cout << "Default MaxPitch: " << defRecoil[3] << std::endl;
+		//std::cout << "Default ADS Scale: " << defRecoil[4] << std::endl;
+		//std::cout << "Default Move Pen: " << defRecoil[5] << std::endl;
 
-		std::cout << "Default AimCone: " << defAimCone[0] << std::endl;
-		std::cout << "Default HipAimCone: " << defAimCone[1] << std::endl;
+		//std::cout << "Default AimCone: " << defAimCone[0] << std::endl;
+		//std::cout << "Default HipAimCone: " << defAimCone[1] << std::endl;
 
 		//Add default recoil values into defaultRecoilSettingsAutomatic
 		for (int i = 0; i < 6; i++) {
@@ -43,7 +43,7 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 	}
 
 	if(activeMods.at("RecoilMultiplier")){
-		std::cout << ">>>>>>>>>>>>>>>>>>>RECOIL MULTIPLIER<<<<<<<<<<<<<<<<<<<<<<: " << recoilMultiplierAdjustable << std::endl;
+		//std::cout << ">>>>>>>>>>>>>>>>>>>RECOIL MULTIPLIER<<<<<<<<<<<<<<<<<<<<<<: " << recoilMultiplierAdjustable << std::endl;
 		Weapon->NoRecoil(
 			defaultRecoilSettings.at(gunName)[0] * recoilMultiplierAdjustable,
 			defaultRecoilSettings.at(gunName)[1] * recoilMultiplierAdjustable,
@@ -54,7 +54,7 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 		);
 		Weapon->editAimCone(defaultRecoilSettingsAutomatic.at(gunName)[6] * aimconeMultiplier, defaultRecoilSettingsAutomatic.at(gunName)[7] * aimconeMultiplier);
 	} else {
-		std::cout << ">>>>>>>>>>>>>>>>>>>CUSTOM RECOIL SETTINGS<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+		//std::cout << ">>>>>>>>>>>>>>>>>>>CUSTOM RECOIL SETTINGS<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 		Weapon->NoRecoil(
 			recoilSettings.at(gunName)[0],
 			recoilSettings.at(gunName)[1],
@@ -88,13 +88,13 @@ void callRecoil(std::string gunName, WeaponData* Weapon) {
 
 void WeaponPatch()
 {
-	printf("+++++++++++++++++++++++++++WeaponPatch");
+	//printf("+++++++++++++++++++++++++++WeaponPatch");
 	std::wstring Hash = L"";
 	WeaponData* Weapon = LocalPlayer.BasePlayer->GetActiveWeapon();
 
 	if (Weapon) Hash = Weapon->GetNameHash();
 
-	std::wcout << "CURRENT WEAPON: " << Hash;
+	//std::wcout << "CURRENT WEAPON: " << Hash;
 	HeldWeaponCheck = Hash;
 
 	//printf("Hash: %S\nAK: %S",Hash.c_str(), L"rifle.ak");

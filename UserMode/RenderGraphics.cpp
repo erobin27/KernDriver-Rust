@@ -522,7 +522,7 @@ bool Radar::createPlayerBlips(BasePlayer* player, int type) {
 		this->blipList.emplace_back(blip);
 		break;
 	case enemy:
-		blip = Blip("enemy", pPos.x, pPos.z, pPos.y, "RED", 10, player->GetHealth());
+		blip = Blip("player", pPos.x, pPos.z, pPos.y, "RED", 10, player->GetHealth());
 		this->blipList.emplace_back(blip);
 		break;
 	case teammate:

@@ -271,10 +271,10 @@ void gameLoop() {
 
 			myRadar.setRange(radarDistance);
 
-			std::thread drawingThread(sonarLoop, std::ref(myRadar));		//created thread never access the game
+			std::thread readingThread(sonarLoop, std::ref(myRadar));		//created thread never access the game
 			draw(myRadar);
 				
-			drawingThread.join();
+			readingThread.join();
 			myRadar.clearBlips();
 			myRadar.swapBlipBuffers();
 
@@ -306,6 +306,7 @@ int main()
 		Radar myRadar = Radar(1000, 1000);
 		int c = 0;
 		while (true) {
+			//std::thread drawingThread(draw, std::ref(myRadar))
 			myRadar.drawWindowTesting();
 			myRadar.clearBlips();
 			Sleep(100);

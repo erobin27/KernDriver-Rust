@@ -115,7 +115,7 @@ void readSection(string sectionTitle, string myText, bool &READ, bool print) {
 
 	if (READ && sectionTitle.compare("Recoil(") == 0) {
 		//PRINT CONFIG TABLE
-		printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
+		//printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
 		
 		//FILL RECOIL MAP
 		recoilSettings[left(myText, ':')] = readConfigLine(right(myText, ':'));
@@ -123,7 +123,7 @@ void readSection(string sectionTitle, string myText, bool &READ, bool print) {
 
 	if (READ && sectionTitle.compare("RecoilMultiplier(") == 0) {
 		//PRINT CONFIG TABLE
-		printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
+		//printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
 
 		//FILL RECOIL MAP
 		recoilMultiplier[left(myText, ':')] = readConfigLine(right(myText, ':'));
@@ -131,7 +131,7 @@ void readSection(string sectionTitle, string myText, bool &READ, bool print) {
 
 	if (READ && sectionTitle.compare("DefaultRecoil(") == 0) {
 		//PRINT CONFIG TABLE
-		printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
+		//printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
 
 		//FILL RECOIL MAP
 		defaultRecoilSettings[left(myText, ':')] = readConfigLine(right(myText, ':'));
@@ -139,7 +139,7 @@ void readSection(string sectionTitle, string myText, bool &READ, bool print) {
 
 	if (READ && sectionTitle.compare("ActiveMods(") == 0) {
 		//PRINT CONFIG TABLE
-		printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
+		//printConfigTable(left(myText, ':'), readConfigLine(right(myText, ':')));
 
 		//FILL ACTIVE MODS MAP
 		activeMods[left(myText, ':')] = (0 < (int)readConfigLine(right(myText, ':'))[0]);
@@ -160,7 +160,7 @@ bool getSettings() {
 	string directory(buffer);
 	directory.erase(directory.find_last_of('\\') + 1, directory.length());
 	directory += "config.txt";
-	cout << "Current Directory:" << directory << endl;
+	//cout << "Current Directory:" << directory << endl;
 
 	ifstream in(directory);
 	if (!in) {	//return error
@@ -169,22 +169,22 @@ bool getSettings() {
 	}
 	while (getline(in, myText)) { //read the lines
 		if (myText.compare("Recoil(") == 0) {
-			cout << "-----RECOIL SETTINGS-----" << endl;
+			//cout << "-----RECOIL SETTINGS-----" << endl;
 			currSection = "Recoil(";
 			print = false;
 		}
 		if (myText.compare("DefaultRecoil(") == 0) {
-			cout << "-----DEFAULT RECOIL SETTINGS-----" << endl;
+			//cout << "-----DEFAULT RECOIL SETTINGS-----" << endl;
 			currSection = "DefaultRecoil(";
 			print = false;
 		}
 		if (myText.compare("RecoilMultiplier(") == 0) {
-			cout << "-----MULTIPLIER SETTINGS-----" << endl;
+			//cout << "-----MULTIPLIER SETTINGS-----" << endl;
 			currSection = "RecoilMultiplier(";
 			print = true;
 		}
 		if (myText.compare("ActiveMods(") == 0) {
-			cout << "-----ACTIVE MODS-----" << endl;
+			//cout << "-----ACTIVE MODS-----" << endl;
 			currSection = "ActiveMods(";
 			print = false;
 		}
