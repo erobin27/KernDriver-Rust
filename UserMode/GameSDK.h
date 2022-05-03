@@ -623,14 +623,14 @@ public:
 		return mem->Read<DWORD64>((UINT_PTR)this + oSteamID);//	public ulong userID;
 	}
 	//*** localplayer ***//
-
+	/*
 	bool IsMenu()
 	{
 		if (!this) return true;
 		DWORD64 Input = mem->Read<DWORD64>((UINT_PTR)this + oPlayerInput); //	public PlayerInput input;
 		return !(mem->Read<BOOL>(Input + oKeyFocus));// private bool hasKeyFocus;
 	}
-
+	*/
 	void SetVA(const Vector2& VA)
 	{
 		DWORD64 Input = mem->Read<DWORD64>((UINT_PTR)this + oPlayerInput);//	public PlayerInput input;
