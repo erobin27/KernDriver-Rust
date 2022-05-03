@@ -102,7 +102,7 @@ void sonarLoop(Radar& myRadar) {
 		}
 
 		count++;
-		Sleep(10);
+		Sleep(2);
 	}
 }
 
@@ -122,7 +122,7 @@ void draw(Radar& myRadar) {
 			myRadar.menu.changeItem();
 			Sleep(100);
 		}
-		Sleep(10);
+		Sleep(2);
 	}
 }
 
@@ -271,8 +271,8 @@ void gameLoop() {
 
 			myRadar.setRange(radarDistance);
 
-			std::thread drawingThread(draw, std::ref(myRadar));		//created thread never access the game
-			sonarLoop(myRadar);
+			std::thread drawingThread(sonarLoop, std::ref(myRadar));		//created thread never access the game
+			draw(myRadar);
 				
 			drawingThread.join();
 			myRadar.clearBlips();
