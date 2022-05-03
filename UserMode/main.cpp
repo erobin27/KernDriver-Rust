@@ -86,44 +86,50 @@ void printInstructions(ConsoleMenu menu) {
 
 void sonarLoop(Radar& myRadar) {
 	//UNTIL END IS PRESSED 
-	int count = 1;
+	static int count = 1;
 	GameData gData;
-	radarLoop(myRadar, gData, true);
-	while (!(GetKeyState(VK_END) & 0x8000)) {
-
-		//if count % (1000ms in a second * 10 Seconds)/10ms Sleep time we use == 0
-		if (count % ((100 * RefreshDelaySeconds)/10) == 0)	{
-			radarLoop(myRadar, gData, true);		//Detect all entities
-			count = 1;
-		}
-		else
-		{
-			radarLoop(myRadar, gData, false);		//Detect players and check if static entities have been destroyed
-		}
-
-		count++;
-		Sleep(2);
+	
+	//if count % (1000ms in a second * 10 Seconds)/10ms Sleep time we use == 0
+	if (count % ((100 * RefreshDelaySeconds)/10) == 0)	{
+		radarLoop(myRadar, gData, true);		//Detect all entities
+		count = 1;
 	}
+	else
+	{
+		radarLoop(myRadar, gData, false);		//Detect players and check if static entities have been destroyed
+	}
+
+	count++;
+	Sleep(2);
 }
 
 void draw(Radar& myRadar) {
+	bool drawRadar = false;
 	myRadar.createRadarWindow();
-	while (!(GetKeyState(VK_END) & 0x8000)) {
-		myRadar.drawSonar();	//Draw entities on the radar
+	while (true) {
+		if (drawRadar) {
+			myRadar.drawSonar();	//Draw entities on the radar
 
-		if (GetKeyState(VK_DOWN) & 0x8000) {	//if down arrow pressed
-			myRadar.menu.nextItem();
-			Sleep(100);
+			if (GetKeyState(VK_DOWN) & 0x8000) {	//if down arrow pressed
+				myRadar.menu.nextItem();
+				Sleep(100);
+			}
+			if (GetKeyState(VK_UP) & 0x8000) {		//if up arrow pressed
+				myRadar.menu.previousItem();
+				Sleep(100);
+			}
+			if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {	//if left/right arrow pressed
+				myRadar.menu.changeItem();
+				Sleep(100);
+			}
+			Sleep(2);
 		}
-		if (GetKeyState(VK_UP) & 0x8000) {		//if up arrow pressed
-			myRadar.menu.previousItem();
-			Sleep(100);
+		else {
+			myRadar.drawBlank();
 		}
-		if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000) {	//if left/right arrow pressed
-			myRadar.menu.changeItem();
-			Sleep(100);
-		}
-		Sleep(2);
+
+		if (drawRadar && (GetKeyState(VK_END) & 0x8000)) drawRadar = !drawRadar;
+		if (!drawRadar && (GetKeyState(VK_HOME) & 0x8000)) drawRadar = !drawRadar;
 	}
 }
 
@@ -140,6 +146,7 @@ void gameLoop() {
 	printInstructions(menu);
 
 	Radar myRadar = Radar(1000, 1000);
+	std::thread drawingThread(draw, std::ref(myRadar));		//created thread never access the game
 
 	while (true) {
 		//printf("\t\tIN GAMELOOP:");
@@ -266,21 +273,10 @@ void gameLoop() {
 		//Radar
 		if (GetKeyState(VK_HOME) & 0x8000) {
 			system(CLEAR);
-			if (glfwWindowShouldClose(myRadar.getWindow())) {
-				glfwTerminate();
-				myRadar = Radar(1000, 1000);
-			}
-
-			myRadar.setRange(radarDistance);
 			std::cout << skCrypt("hold END until menu reappears...\n");
-			std::thread readingThread(draw, std::ref(myRadar));		//created thread never access the game
-			sonarLoop(myRadar);
-				
-			readingThread.join();
-			myRadar.clearBlips();
-			myRadar.swapBlipBuffers();
-			glfwTerminate(); //closes window
-			myRadar = Radar(1000, 1000); // creates new radar
+			while (!(GetKeyState(VK_END) & 0x8000)) {
+				sonarLoop(myRadar);
+			}
 
 			//After END is pressed clear the console and print the main menu
 			system(WHITE);
