@@ -271,10 +271,10 @@ void gameLoop() {
 
 			myRadar.setRange(radarDistance);
 
-			std::thread entityLoops(sonarLoop, std::ref(myRadar));
-			draw(myRadar);
+			std::thread drawingThread(draw, std::ref(myRadar));		//created thread never access the game
+			sonarLoop(myRadar);
 				
-			entityLoops.join();
+			drawingThread.join();
 			myRadar.clearBlips();
 			myRadar.swapBlipBuffers();
 
