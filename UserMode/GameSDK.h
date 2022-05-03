@@ -7,8 +7,8 @@
 //game structs
 //[Base + g_BN_Steam] + oEntityRealm] + oClientEntitiesList] + oClientEntitiesValues]
 //client entities = read()
-#define g_BN 0x3171BE0			//0x32A4668
-#define g_BN_Steam 0x3171BE0
+#define g_BN 0x31B68B8			//0x32A4668	
+#define g_BN_Steam 0x31B68B8
 #define GOM 0x17C1F18			//doesn't change (usually)
 
 
@@ -30,9 +30,9 @@
 
 
 //BasePlayer Class
+#define oPlayerModel 0x4C0		//BasePlayer: PlayerModel playerModel
 #define oPlayerInput 0x4E0		//BasePlayer: PlayerInput input
 #define oPlayerMovement 0x4E8	//BasePlayer: BaseMovement movement
-#define oPlayerModel 0x4C0		//BasePlayer: PlayerModel playerModel
 #define oWasSleeping 0x521		//BasePlayer: Bool wasSleeping				not used
 #define oWasDead 0x523			//BasePlayer: Bool wasDead
 #define oCurrentTeam 0x590		//BasePlayer: ULONG Current Team
@@ -85,32 +85,6 @@
 //ArrayList Class				used for lists like oItemList
 #define oArrayListItems 0x10			//ArrayList: object[] 0x10
 #define oArrayListSize	0x18			//ArrayList: int 0x18
-
-
-//not used
-#define oNoBlockAiming 0x6B0	//public bool clothingBlocksAiming; //IDK THIS OFFSET
-#define oSpeedReduction 0x6B4	//	public float clothingMoveSpeedReduction;
-#define oMagazine 0x2A0 
-#define oVisible 0x248			// internal bool visible;
-#define oNoAimSway 0x6BC		//	public float clothingAccuracyBonus;
-#define oLifestate 0x204		//	public BaseCombatEntity.LifeState lifestate;
-#define oAuto 0x270   // public bool automatic;
-#define oDistance 0x278 //private Transform attachmentBoneCache; public float maxDistance; // 0x278
-#define oAttackRadius 0x27C //public float attackRadius;
-#define oVelocity 0x1FC  // 	private Vector3 newVelocity;
-#define oFakeAdmin 0x5F8   //public BasePlayer.PlayerFlags playerFlags;
-#define oSuccessFraction 0x340  //public float successFraction;
-#define oGroundAngle 0xC4 // private float groundAngle;
-#define oGroundAngleNew 0xC8  // private float groundAngleNew;
-#define oGravity 0x74  //public float gravityMultiplier;
-#define oWaterBoost 0x6B8   //	public float clothingWaterSpeedBonus;
-#define oFlyHack  0x13C     // private bool flying;
-#define oMultiplierSwimming 0x78  // public float gravityMultiplierSwimming;
-#define oTickTime 0x5CC //	private float lastSentTickTime;
-#define oFrozen 0x4B0 // public bool Frozen;
-#define oKeyFocus 0x94  // private bool hasKeyFocus;
-#define oClientTickInterval 0x5C8  // public float clientTickInterval;
-//#define oNoClip  0x563900     //public static void noclip(ConsoleSystem.Arg arg) { }
 
 enum PlayerFlags {
 	Unused1 = 1,
