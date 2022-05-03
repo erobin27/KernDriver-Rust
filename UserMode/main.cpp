@@ -86,21 +86,24 @@ void printInstructions(ConsoleMenu menu) {
 
 void sonarLoop(Radar& myRadar) {
 	//UNTIL END IS PRESSED 
-	static int count = 1;
+	int count = 1;
 	GameData gData;
-	
-	//if count % (1000ms in a second * 10 Seconds)/10ms Sleep time we use == 0
-	if (count % ((100 * RefreshDelaySeconds)/10) == 0)	{
-		radarLoop(myRadar, gData, true);		//Detect all entities
-		count = 1;
-	}
-	else
-	{
-		radarLoop(myRadar, gData, false);		//Detect players and check if static entities have been destroyed
-	}
+	radarLoop(myRadar, gData, true);
+	while (!(GetKeyState(VK_END) & 0x8000)) {
 
-	count++;
-	Sleep(2);
+		//if count % (1000ms in a second * 10 Seconds)/10ms Sleep time we use == 0
+		if (count % ((100 * RefreshDelaySeconds) / 10) == 0) {
+			radarLoop(myRadar, gData, true);		//Detect all entities
+			count = 1;
+		}
+		else
+		{
+			radarLoop(myRadar, gData, false);		//Detect players and check if static entities have been destroyed
+		}
+
+		count++;
+		Sleep(2);
+	}
 }
 
 void draw(Radar& myRadar) {
@@ -274,9 +277,7 @@ void gameLoop() {
 		if (GetKeyState(VK_HOME) & 0x8000) {
 			system(CLEAR);
 			std::cout << skCrypt("hold END until menu reappears...\n");
-			while (!(GetKeyState(VK_END) & 0x8000)) {
-				sonarLoop(myRadar);
-			}
+			sonarLoop(myRadar); //until end is pressed
 
 			//After END is pressed clear the console and print the main menu
 			system(WHITE);
